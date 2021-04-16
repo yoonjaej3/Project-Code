@@ -1,3 +1,7 @@
+<head>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
 {% extends 'layouts/base.html' %}
 
 {% block title %} Dashboard {% endblock title %}
@@ -8,72 +12,57 @@
 {% block content %}
 
 
+<form>
+    <label for="festival_id">축제 아이디</label><br>
+    <input type="text" id="festival_id" name="festival_id"><br>
+    <label for=" store_name">가게 이름</label><br>
+    <input type="text" id="store_name" name="store_name"><br>
+    <label for="store_description">설명:</label><br>
+    <input type="text" id="store_description" name="store_description"><br>
+    <label for="contact_number">핸드폰 번호</label><br>
+    <input type="text" id="contact_number" name="contact_number"><br>
+    <label for="category">종류</label><br>
+    <input type="text" id="category" name="category"><br>
+    <label for="license_number">사업자 번호</label><br>
+    <input type="text" id="license_number" name="license_number"><br>
+    <label for="location_number">구역</label><br>
+    <input type="text" id="location_number" name="location_number"><br>
+    <input type="button" id="execute" value="execute">
+</form>
 
-<div class="row">
-    <div class="col-xl-8">
-        <div class="card">
-            <div class="card-header border-0">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0">판매자 정보</h3>
-                    </div>
-                    <div class="col text-right">
-                        <a href="#!" class="btn btn-sm btn-primary">See all</a>
-                    </div>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <!-- Projects table -->
-                <table class="table align-items-center table-flush">
-                    <thead class="thead-light">
-                        <tr>
-                            <th scope="col">판매자 이름</th>
-                            <th scope="col">가게 이름</th>
-                            <th scope="col">설명</th>
-                            <th scope="col">핸드폰 번호</th>
-                            <th scope="col">종류</th>
-                            <th scope="col">사업자 번호</th>
-                            <th scope="col">구역</th>
-                            <th scope="col">등록 시간</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for datas in data_list %}
-                        <tr>
-                            <th scope="row">
-                                {{ datas[2] }}
-                            </th>
-                            <td>
-                                {{ datas[3] }}
-                            </td>
-                            <td>
-                                {{ datas[4] }}
-                            </td>
-                            <td>
-                                {{ datas[5] }}
-                            </td>
-                            <td>
-                                {{ datas[6] }}
-                            </td>
-                            <td>
-                                {{ datas[7] }}
-                            </td>
-                            <td>
-                                {{ datas[8] }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<script>
+    $('#execute').click(function () {
+        var festival_id = $('#festival_id').val();
+        var store_name = $('#store_name').val();
+        var store_description = $('#store_description').val();
+        var contact_number = $('#contact_number').val();
+        var category = $('#category').val();
+        var license_number = $('#license_number').val();
+        var location_number = $('#location_number').val();
 
-</div>
-
+        var postdata = {
+            'festival_id': festival_id, 'store_name': store_name, 'store_description': store_description, 'contact_number': contact_number,
+            'category': category, 'license_number': license_number, 'location_number': location_number
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/myajax',
+            data: JSON.stringify(postdata),
+            dataType: 'JSON',
+            contentType: "application/json",
+            success: function (data) {
+                alert('성공!')
+                window.location = 'store_info'
+            },
+            error: function (request, status, error) {
+                alert('ajax 통신 실패')
+                alert(error);
+            }
+        })
+    })
+</script>
 {% include "includes/footer.html" %}
 
-</div>
 
 {% endblock content %}
 
