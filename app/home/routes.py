@@ -14,7 +14,7 @@ import pymysql
 @login_required
 def index():
 
-    db = pymysql.connect(host="localhost", user="root", password="mysql",
+    db = pymysql.connect(host="localhost", user="root", password="1234",
                         db="mydb", charset="utf8")
     cur = db.cursor()
     sql = "SELECT * from festival"
@@ -23,6 +23,20 @@ def index():
     data_list = cur.fetchall()
     
     return render_template('index.html', segment='index', data_list=data_list)
+
+@blueprint.route('/store_info')
+@login_required
+def my_ex():
+
+    db = pymysql.connect(host="localhost", user="root", password="1234",
+                        db="mydb", charset="utf8")
+    cur = db.cursor()
+    sql = "SELECT * from store"
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    
+    return render_template('store_info.html',data_list=data_list)
 
 @blueprint.route('/<template>')
 @login_required

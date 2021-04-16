@@ -1,0 +1,86 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header border-0">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="mb-0">판매자 정보</h3>
+                    </div>
+                    <div class="col text-right">
+                        <a href="#!" class="btn btn-sm btn-primary">See all</a>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <!-- Projects table -->
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">판매자 이름</th>
+                            <th scope="col">가게 이름</th>
+                            <th scope="col">설명</th>
+                            <th scope="col">핸드폰 번호</th>
+                            <th scope="col">종류</th>
+                            <th scope="col">사업자 번호</th>
+                            <th scope="col">구역</th>
+                            <th scope="col">등록 시간</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for datas in data_list %}
+                        <tr>
+                            <th scope="row">
+                                {{ datas[2] }}
+                            </th>
+                            <td>
+                                {{ datas[3] }}
+                            </td>
+                            <td>
+                                {{ datas[4] }}
+                            </td>
+                            <td>
+                                {{ datas[5] }}
+                            </td>
+                            <td>
+                                {{ datas[6] }}
+                            </td>
+                            <td>
+                                {{ datas[7] }}
+                            </td>
+                            <td>
+                                {{ datas[8] }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% include "includes/footer.html" %}
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+{% endblock javascripts %}
