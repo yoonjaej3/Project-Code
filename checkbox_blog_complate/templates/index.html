@@ -1,0 +1,49 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert Checkbox values in Database using Python Flask Jquery Ajax and MySQLdb</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
+<body>
+    <h3>Insert Checkbox values in Database using Python Flask Jquery Ajax and MySQLdb</h3>
+    <label><input type="checkbox" class="get_value" value="Python"> Python</label>
+    <br/>
+    <label> <input type="checkbox" class="get_value" value="JavaScript"> JavaScript</label>
+    <br/>
+    <label><input type="checkbox" class="get_value" value="Java"> Java</label>
+    <br/>
+    <label><input type="checkbox" class="get_value" value="PHP"> PHP</label>
+    <br/>
+    <label><input type="checkbox" class="get_value" value="C#"> C#</label>
+    <br/>
+    <br/>
+    <button type="button" name="submit" id="submit">Save</button>
+    <br/>
+    <h4 id="result"></h4>
+    <script>
+        $(document).ready(function() {
+            $('#submit').click(function() {
+                var insert = [];
+                $('.get_value').each(function() {
+                    if ($(this).is(":checked")) {
+                        insert.push($(this).val());
+                    }
+                });
+                insert = insert.toString();         
+                var insert_string = 'checkboxvalue='+insert;            
+                $.ajax({
+                    method: "POST",
+                    url: "/insert",
+                    data: insert_string,
+                    cache: false,
+                    success: function(data){    
+                        $("#result").html(data);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
