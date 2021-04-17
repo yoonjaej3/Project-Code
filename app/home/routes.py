@@ -68,7 +68,24 @@ def myajax():
    
     db.commit() 
 
-    
+    return jsonify(result = "success", result2= json_data)
+  
+@blueprint.route('/myajax_delete',methods=['POST'])
+@login_required
+def myajax_delete():
+
+    json_data = request.get_json()
+    print(json_data)
+    db = pymysql.connect(host="localhost", user="root", password="1234",
+                        db="mydb", charset="utf8")
+    cur = db.cursor()
+
+
+    sql = '''Delete from store where store_id=%s
+    '''
+    cur.execute(sql, [json_data['store_id']])
+   
+    db.commit()   
 
     return jsonify(result = "success", result2= json_data)
     # db = pymysql.connect(host="localhost", user="root", password="1234",
