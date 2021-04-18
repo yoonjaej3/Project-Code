@@ -12,24 +12,24 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
     'database': 'mydb'
 }
 
 
-@blueprint.route('/jaesung_festivalList')
-@login_required
-def index():
+# @blueprint.route('/jaesung_festivalList')
+# @login_required
+# def index():
 
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from festival"
-    cur.execute(sql)
+#     db = pymysql.connect(**config)
+#     cur = db.cursor()
+#     sql = "SELECT * from festival"
+#     cur.execute(sql)
 
-    data_list = cur.fetchall()
+#     data_list = cur.fetchall()
     
-    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
+#     return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
 
 
 @blueprint.route('/jan_festival')
