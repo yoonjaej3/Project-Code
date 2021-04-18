@@ -10,6 +10,9 @@ from app import login_manager
 from jinja2 import TemplateNotFound
 import pymysql
 
+
+
+
 config = {
     'host': '127.0.0.1',
     'port': 13306,
@@ -90,6 +93,40 @@ def storelist():
     return render_template('juthor_storeList.html', segment='storelist', data_list=data_list)
 
 
+@blueprint.route('/juthor_cart')
+@login_required
+def cart():
+    data_list=get_menu()
+    return render_template('juthor_cart.html', segment='cart', data_list=data_list)
+
+def get_menu():
+    db = pymysql.connect(host="localhost", user="root", password="mysql",
+                        db="mydb", charset="utf8")
+    
+    cur = db.cursor()
+    sql = '''
+        select menu_name, menu_price
+        from menu
+        where store_id=3''' 
+
+    cur.execute(sql)
+    data_list = cur.fetchall()
+    return data_list
+
+# @blueprint.route('/juthor_cart/insert', methods=['POST'])
+# @login_required
+# def insert() :
+#     element = request.values.get('insert')
+#     element = request.form.getlist('menu')
+#     print(element)
+#     cart_insert(element)
+#     # return render_template('juthor_cart.html', segment='cart')
+#     return '''
+#             <script>
+#                 alert("저장되었습니다")
+#                 location.href="."
+#             </script>
+#            ''' 
 
 @blueprint.route('/<template>')
 @login_required
