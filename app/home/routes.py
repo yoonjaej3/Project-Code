@@ -14,22 +14,22 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
+    'password': 'root0127:)',
     'database': 'mydb'
 }
 
+@blueprint.route('/jaesung_festivalList')
+@login_required
+def index():
 
-# @blueprint.route('/jaesung_festivalList')
-# @login_required
-# def index():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT * from festival"
+    cur.execute(sql)
 
-#     db = pymysql.connect(**config)
-#     cur = db.cursor()
-#     sql = "SELECT * from festival"
-#     cur.execute(sql)
-
-#     data_list = cur.fetchall()
+    data_list = cur.fetchall()
     
-#     return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
+    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
 
 
 @blueprint.route('/jan_festival')
@@ -44,6 +44,19 @@ def index2():
     data_list = cur.fetchall()
     
     return render_template('jan_festival.html', segment='index2', data_list=data_list)
+
+@blueprint.route('/jan_apply')
+@login_required
+def index2_1():
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT * from organization"
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    
+    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
 
 
 @blueprint.route('/juthor_dash')
