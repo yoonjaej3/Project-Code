@@ -42,7 +42,7 @@
                         <tr>
                             <td id="store_id">{{ datas[0] }}</td>
                             <td>
-                                {{ datas[1] }}
+                                {{ datas[2] }}
                             </td>
                             <td>
                                 {{ datas[3] }}
@@ -97,7 +97,7 @@
         }
         $.ajax({
             type: 'POST',
-            url: '/myajax_delete',
+            url: '/myajax_store_delete',
             data: JSON.stringify(postdata),
             dataType: 'JSON',
             contentType: "application/json",

@@ -100,9 +100,9 @@ def order_detail():
 def store_save():
     return render_template('store_save.html')
 
-@blueprint.route('/myajax',methods=['POST'])
+@blueprint.route('/myajax_store_insert',methods=['POST'])
 @login_required
-def myajax():
+def myajax_store_insert():
 
     json_data = request.get_json()
     db = pymysql.connect(host="localhost", user="root", password="1234",
@@ -127,9 +127,9 @@ def myajax():
 
     return jsonify(result = "success", result2= json_data)
   
-@blueprint.route('/myajax_delete',methods=['POST'])
+@blueprint.route('/myajax_store_delete',methods=['POST'])
 @login_required
-def myajax_delete():
+def myajax_store_delete():
 
     json_data = request.get_json()
     print(json_data)
@@ -145,35 +145,7 @@ def myajax_delete():
     db.commit()   
 
     return jsonify(result = "success", result2= json_data)
-    # db = pymysql.connect(host="localhost", user="root", password="1234",
-    #                     db="mydb", charset="utf8")
-    # cur = db.cursor()
-    #  json_data = request.get_json()
-    #     json_data['store_id'] = store_id
-    #     json_data['created__at'] = str(datetime.today())
 
-    #     # DB insert
-    #     sql = '''Insert into store(store_id,festival_id,store_name,store_description ,contact_number,category,license_number,location_number,created_at) 
-    #      values(?,?,?,?,?,?,?,?,?);
-    #     '''
-    #     #    Insert into store(store_id,festival_id,store_name,store_description ,contact_number,category,license_number,location_number,created_at)
-    #     #    values(1,1,"떡꼬치 가게","달콤하고 매운 떡꼬치를 파는 곳입니다.","010-9062-6317","꼬치","A123","A-3","2000-01-11 00:00:00");
-
-    #     self.cursor.execute(sql, [
-    #         json_data['store_id'], json_data['festival_id'],
-    #         json_data['store_name'], json_data['store_description'],
-    #         json_data['contact_number'], json_data['category'],
-    #         json_data['license_number'], json_data['location_number'],
-    #         json_data['created__at']
-    #     ])
-
-    #     self.conn.commit()    
-    # sql = "SELECT * from store"
-    # cur.execute(sql)
-
-    # data_list = cur.fetchall()
-    
-    # return render_template('store_save.html',data_list=data_list)
 
 
 @blueprint.route('/<template>')
