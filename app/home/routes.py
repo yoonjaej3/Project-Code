@@ -32,6 +32,10 @@ def index():
     
     return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
 
+@blueprint.route('/jaesung_login')
+def js_login():
+    return render_template('jaesung_login.html')
+
 
 @blueprint.route('/jan_festival')
 @login_required
