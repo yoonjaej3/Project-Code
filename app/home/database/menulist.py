@@ -9,13 +9,13 @@ config = {
 
 
 
-# def cart_insert(element):
-#     conn = pymysql.connect(**config)
-#     cur = conn.cursor()
-#     for i in element:
-#         sql = "insert into order_detail (order_id, menu_name, food_qty, food_price)\
-#                select 1, %s, 1, menu_price from menu where menu.menu_name=%s"
-#         cur.execute(sql, (i, i))
+def cart_insert(element):
+    conn = pymysql.connect(**config)
+    cur = conn.cursor()
+    for i in element:
+        sql = "insert into order_detail (order_id, menu_name, food_qty, food_price)\
+               select 1, %s, 1, menu_price from menu where menu.menu_name=%s"
+        cur.execute(sql, (i, i))
         
-#     conn.commit()
-#     conn.close()
+    conn.commit()
+    conn.close()

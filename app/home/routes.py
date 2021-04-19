@@ -8,9 +8,12 @@ from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import login_manager
 from jinja2 import TemplateNotFound
+from app.home.database import menulist
+import flask_restful
+
+import json
+import uuid
 import pymysql
-
-
 
 
 config = {
@@ -62,9 +65,20 @@ def index3():
     
     return render_template('juthor_dash.html', segment='index3', data_list=data_list)
 
+@blueprint.route('/jhj_order')
+@login_required
+def order():
+    return render_template('jhj_order.html')
+
+
+
+
+##########################################################
+##########################################################
 
 @blueprint.route('/juthor_category')
 @login_required
+
 def category():
     db = pymysql.connect(host="localhost", user="root", password="mysql",
                         db="mydb", charset="utf8")
@@ -93,11 +107,11 @@ def storelist():
     return render_template('juthor_storeList.html', segment='storelist', data_list=data_list)
 
 
-@blueprint.route('/juthor_cart')
+@blueprint.route('/juthor_storemenulist')
 @login_required
-def cart():
+def store_menulist():
     data_list=get_menu()
-    return render_template('juthor_cart.html', segment='cart', data_list=data_list)
+    return render_template('juthor_storemenulist.html', segment='storemenulist', data_list=data_list)
 
 def get_menu():
     db = pymysql.connect(host="localhost", user="root", password="mysql",
@@ -113,20 +127,45 @@ def get_menu():
     data_list = cur.fetchall()
     return data_list
 
-# @blueprint.route('/juthor_cart/insert', methods=['POST'])
-# @login_required
-# def insert() :
-#     element = request.values.get('insert')
-#     element = request.form.getlist('menu')
-#     print(element)
-#     cart_insert(element)
-#     # return render_template('juthor_cart.html', segment='cart')
-#     return '''
-#             <script>
-#                 alert("저장되었습니다")
-#                 location.href="."
-#             </script>
-#            ''' 
+
+@blueprint.route('/insert', methods=['POST'])
+@login_required
+def insert() :
+    element = request.form.getlist('datas')
+    print(element)
+    menulist.cart_insert(element)
+    return '''
+            <script>
+                alert("저장되었습니다")
+                location.href="/juthor_cart" 
+            </script>
+           ''' 
+    # location.href를 통해 insert 후 페이지 이동하는 것
+    
+    #return render_template('juthor_cart.html', segment='cart')
+
+
+
+@blueprint.route('/juthor_cart')
+@login_required
+def store_cartlist():
+    data_list=get_cartlist()
+    return render_template('juthor_cart.html', segment='cartlist', data_list=data_list)
+
+def get_cartlist():
+    db = pymysql.connect(host="localhost", user="root", password="mysql",
+                        db="mydb", charset="utf8")
+    
+    cur = db.cursor()
+    sql = '''
+        select menu_name, food_price, food_qty
+        from order_detail
+        where order_id=1''' 
+
+    cur.execute(sql)
+    data_list = cur.fetchall()
+    return data_list
+
 
 @blueprint.route('/<template>')
 @login_required

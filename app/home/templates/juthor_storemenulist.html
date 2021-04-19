@@ -34,11 +34,19 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-            <h3 class="mb-0">장바구니 리스트</h3>
+            <h3 class="mb-0">주문 하기</h3>
           </div>
           <!-- Light table -->
           <div class="table-responsive">
             <table class="table">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col" class="sort">메뉴</th>
+                  <th scope="col" class="sort">가격</th>
+                  <th scope="col">선택하기</th>
+                </tr>
+              </thead>
+              <tbody class="list">
               <form form action="/insert" method="POST">
                 {% for datas in data_list%}
                 <tbody>
@@ -49,15 +57,13 @@
                     </tr>
                 </tbody>
                 {% endfor %}
-                <button class= "btn btn-link" type="submit">결제하기</button>
+                <button class= "btn btn-link" type="submit">장바구니 담기</button>
               </form>
             </table>
           </div>
         </div>
       </div>
     </div>
-
-
     {% include "includes/footer.html" %}
 
   </div>
