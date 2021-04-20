@@ -23,7 +23,8 @@ config = {
     'host': '127.0.0.1',
     'port': 13306,
     'user': 'root',
-    'database': 'mydb'
+    'database': 'mydb',
+    'charset': 'utf8'
 }
 
 
