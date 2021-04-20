@@ -6,9 +6,11 @@ Copyright (c) 2019 - present AppSeed.us
 from app.home import blueprint
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
+import flask_restful
 from app import login_manager
 from jinja2 import TemplateNotFound
 import pymysql
+
 
 config = {
     'host': '127.0.0.1',
@@ -60,52 +62,66 @@ def index3():
     return render_template('juthor_dash.html', segment='index3', data_list=data_list)
 
 
-@blueprint.route('/jhj_order')
-@login_required
-def order():
-    conn = pymysql.connect(**config)
-    cursor = conn.cursor()
+class Order(flask_restful.Resource):
+    def __init__(self):
+        self.conn = pymysql.connect(**config)
+        self.cursor = self.conn.cursor()
 
-    sql = '''SELECT total_price FROM orders WHERE order_id=3'''
+    @blueprint.route('/jhj_order')
+    @login_required
+    def order_get(self, order_id):
+        sql = '''SELECT total_price FROM orders WHERE order_id=2'''
 
-    cursor.execute(sql)
+        self.cursor.execute(sql)
 
-    data_list = cursor.fetchall()
+        data_list = self.cursor.fetchall()
 
-    return render_template('jhj_order.html', data_list=data_list)
+        return render_template('jhj_order.html', data_list=data_list)
 
+    @blueprint.route('/order_post', methods=['POST'])
+    @login_required
+    def order_post(self):
+        json_data = request.get_json()
 
-@blueprint.route('/order_post', methods=['POST'])
-@login_required
-def order_post():
-    json_data = request.get_json()
+        try:
+            with self.conn.cursor() as cursor:
+                sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
+                self.cursor.execute(sql, [json_data['phone_number']])
 
-    conn = pymysql.connect(**config)
+            self.conn.commit()
 
-    try:
-        with conn.cursor() as cursor:
-            sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
-            cursor.execute(sql, [json_data['phone_number']])
+            with self.conn.cursor() as cursor:
+                sql = "UPDATE orders SET requests=%s WHERE order_id=3"
+                self.cursor.execute(sql, [json_data['request_text']])
 
+            self.conn.commit()
 
-        conn.commit()
+        finally:
+            self.conn.close()
 
-        with conn.cursor() as cursor:
-            sql = "UPDATE orders SET requests=%s WHERE order_id=3"
-            cursor.execute(sql, [json_data['request_text']])
+        return jsonify(result="success", result2=json_data)
 
-        conn.commit()
+    @blueprint.route('/jhj_credit')
+    @login_required
+    def credit_get(self):
+        try:
+            with self.conn.cursor() as cursor:
+                sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
+                        ON a.store_id = b.store_id WHERE a.order_id = 2'''
+                self.cursor.execute(sql)
 
-    finally:
-        conn.close()
+            store_data = self.cursor.fetchall()
 
-    return jsonify(result = "success", result2= json_data)
+            with self.conn.cursor() as cursor:
+                sql = "SELECT total_price FROM orders WHERE order_id=2"
+                self.cursor.execute(sql)
 
+            price_data = self.cursor.fetchall()
 
-# @blueprint.route('/jhj_credit', methods=['POST'])
-# @login_required
-# def credit_get():
+        finally:
+            self.conn.close()
 
+        return render_template('jhj_credit.html', data_store=store_data, data_price=price_data)
 
 
 @blueprint.route('/<template>')
@@ -128,6 +144,7 @@ def route_template(template):
     
     except:
         return render_template('page-500.html'), 500
+
 
 # Helper - Extract current page name from request 
 def get_segment( request ): 
