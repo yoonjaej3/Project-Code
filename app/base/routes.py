@@ -21,15 +21,16 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 3306,
+    'port': 13306,
     'user': 'root',
-    'database': 'mydb',
-    'password': 'mysql'
+    'database': 'mydb'
 }
+
 
 @blueprint.route('/')
 def route_default():
     return redirect(url_for('base_blueprint.index_init'))
+
 
 @blueprint.route('/festival_init', methods=['GET', 'POST'])
 def index_init():
@@ -39,8 +40,10 @@ def index_init():
     if json_data:
         sql = '''INSERT INTO festival(org_id, festival_name, period, location, url)
                 VALUES(%s, %s, %s, %s, %s)'''
-        cur.execute(sql, [json_data['org_id'], json_data['festival_name'], json_data['period'], json_data['location'], json_data['url']])
+        cur.execute(sql, [json_data['org_id'], json_data['festival_name'],
+                          json_data['period'], json_data['location'], json_data['url']])
         db.commit()
+
     sql = "SELECT * from festival"
     cur.execute(sql)
 
