@@ -150,36 +150,7 @@ def logout():
     logout_user()
     return redirect(url_for('base_blueprint.login'))
 
-
-# ## ------- 주최자 등록  ------------
-# @blueprint.route('/org/register', methods='GET', 'POST')
-# def register_org():
-#     # login_form = LoginForm(request.form)
-#     org_register = RegisterOrganizationForm(request.form)
-#     if '' in request.form:
-#         username  = request.form['username']
-#         email     = request.form['email'   ]
-
-#         # Check usename exists
-#         user = User.query.filter_by(username=username).first()
-#         if user:
-#             return render_template( 'accounts/register.html', 
-#                                     msg='Username already registered',
-#                                     success=False,
-#                                     form=create_account_form)
-
-#         # Check email exists
-#         user = User.query.filter_by(email=email).first()
-#         if user:
-#             return render_template( 'accounts/register.html', 
-#                                     msg='Email already registered', 
-#                                     success=False,
-#                                     form=create_account_form)
-    
-
-    
-
-
+ 
 
 ## Errors
 
