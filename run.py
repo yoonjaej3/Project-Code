@@ -8,9 +8,22 @@ from os import environ
 from sys import exit
 from decouple import config
 import logging
-
+import jsonify
 from config import config_dict
 from app import create_app, db
+
+
+import flask
+from flask import Flask, jsonify, request
+from flask_restful import reqparse
+from datetime import datetime
+
+import flask_restful
+# import mariadb
+import pymysql
+import json
+import uuid
+# from app.home.routes import routes
 
 # WARNING: Don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -27,12 +40,16 @@ except KeyError:
     exit('Error: Invalid <config_mode>. Expected values [Debug, Production] ')
 
 app = create_app( app_config ) 
+api = flask_restful.Api(app)
 Migrate(app, db)
 
 if DEBUG:
     app.logger.info('DEBUG       = ' + str(DEBUG)      )
     app.logger.info('Environment = ' + get_config_mode )
     app.logger.info('DBMS        = ' + app_config.SQLALCHEMY_DATABASE_URI )
+
+
+# api.add_resource(Category, 'api/juthor_category')
 
 if __name__ == "__main__":
     app.run()

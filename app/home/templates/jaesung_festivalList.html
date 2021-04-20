@@ -207,18 +207,11 @@
                 <tbody>
                   {% for datas in data_list %}
                   <tr>
-                    <th scope="row">
-                      {{ datas[2] }}
-                    </th>
-                    <td>
-                      {{ datas[3] }}
-                    </td>
-                    <td>
-                      {{ datas[4] }}
-                    </td>
-                    <td>
-                      {{ datas[5] }}
-                    </td>
+                    <th scope="row">{{ datas[2] }}</th>
+                    <td>{{ datas[3] }}</td>
+                    <td>{{ datas[4] }}</td>
+                    <td><a href="{{ datas[5] }}">{{ datas[5] }}</td>
+                    <td><a href="/juthor_storeList.html" class="btn btn-sm btn-primary">See Foods</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
