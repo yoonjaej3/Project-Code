@@ -18,8 +18,8 @@ class CreateAccountForm(FlaskForm):
     email    = TextField('Email'        , id='email_create'    , validators=[DataRequired(), Email()])
     password = PasswordField('Password' , id='pwd_create'      , validators=[DataRequired()])
 
-# 주최자등록폼
-class RegisterOrganizationForm(FlaskForm):
-    company_name = TextField('Organization'     , id='company_name' , validators=[DataRequired(), InputRequired()])
-    manager_name = TextField('Manager'          , id='manager_name', validators=[DataRequired(), InputRequired()])
-    manager_contact = TextField('Contact'    , id='manager_contact', validators = [InputRequired()])
+# # 주최자등록폼
+# class RegisterOrganizationForm(FlaskForm):
+#     company_name = TextField('Organization'     , id='company_name' , validators=[DataRequired(), InputRequired()])
+#     manager_name = TextField('Manager'          , id='manager_name', validators=[DataRequired(), InputRequired()])
+#     manager_contact = TextField('Contact'    , id='manager_contact', validators = [InputRequired()])
