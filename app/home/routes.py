@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 """
 Copyright (c) 2019 - present AppSeed.us
 """
@@ -19,7 +18,7 @@ config = {
     'charset': 'utf8'
 }
 
-
+# <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
 @login_required
 def index():
@@ -39,9 +38,38 @@ def js_login():
     return render_template('jaesung_login.html')
 
 
-@blueprint.route('/jan_festival')
+# <<<------------연옥-------------->>>
+@blueprint.route('/jan_festival_using')
 @login_required
 def index2():
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT * from festival, organization"
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    
+    return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
+
+
+@blueprint.route('/jan_apply', methods=['GET', 'POST'])
+
+@login_required
+def index2_1():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT * from organization, festival"
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    
+    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
+
+
+@blueprint.route('/jan_festival', methods=['GET', 'POST'])
+@login_required
+def index2_2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -50,22 +78,10 @@ def index2():
 
     data_list = cur.fetchall()
     
-    return render_template('jan_festival.html', segment='index2', data_list=data_list)
+    return render_template('jan_festival.html', segment='index2_2', data_list=data_list)
 
 
-@blueprint.route('/jan_apply')
-@login_required
-def index2_1():
-
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from organization"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-    
-    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
-
+# <<<------------현주_1-------------->>>
 
 @blueprint.route('/juthor_dash')
 @login_required
@@ -128,6 +144,7 @@ def get_menu():
     return data_list
 
 
+# <<<------------현재-------------->>>
 @blueprint.route('/jhj_order')
 @login_required
 def order_get():
@@ -193,6 +210,8 @@ def credit_get():
     return render_template('jhj_credit.html', data_store=store_data, data_price=price_data)
 
 
+
+# <<<------------현주_2-------------->>>
 @blueprint.route('/insert', methods=['POST'])
 @login_required
 def insert():
