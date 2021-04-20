@@ -1,6 +1,10 @@
 {% extends 'layouts/base.html' %}
 
+<<<<<<< HEAD
 {% block title %} 주최자 정보 {% endblock title %}
+=======
+{% block title %} Profile {% endblock title %}
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
 
 {% block content %}
 
@@ -12,8 +16,14 @@
   <div class="container-fluid d-flex align-items-center">
     <div class="row">
       <div class="col-lg-7 col-md-10">
+<<<<<<< HEAD
         <h1 class="display-2 text-white">안녕하세요, {{ current_user.username }}님!</h1>
         <a href="#!" class="btn btn-neutral">정보 수정하기</a>
+=======
+        <h1 class="display-2 text-white">Hello {{ current_user.username }}</h1>
+        <p class="text-white mt-0 mb-5">This is your profile page. You can see the progress you've made with your work and manage your projects or assigned tasks</p>
+        <a href="#!" class="btn btn-neutral">Edit profile</a>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
       </div>
     </div>
   </div>
@@ -22,6 +32,60 @@
 <div class="container-fluid mt--6">
   <div class="row">
     <div class="col-xl-4 order-xl-2">
+<<<<<<< HEAD
+=======
+      <div class="card card-profile">
+        <img src="/static/assets/img/theme/img-1-1000x600.jpg" alt="Image placeholder" class="card-img-top">
+        <div class="row justify-content-center">
+          <div class="col-lg-3 order-lg-2">
+            <div class="card-profile-image">
+              <a href="#">
+                <img src="/static/assets/img/theme/team-4.jpg" class="rounded-circle">
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
+          <div class="d-flex justify-content-between">
+            <a href="#" class="btn btn-sm btn-info  mr-4 ">Connect</a>
+            <a href="#" class="btn btn-sm btn-default float-right">Message</a>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div class="row">
+            <div class="col">
+              <div class="card-profile-stats d-flex justify-content-center">
+                <div>
+                  <span class="heading">22</span>
+                  <span class="description">Friends</span>
+                </div>
+                <div>
+                  <span class="heading">10</span>
+                  <span class="description">Photos</span>
+                </div>
+                <div>
+                  <span class="heading">89</span>
+                  <span class="description">Comments</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <h5 class="h3">
+              {{ current_user.username }}
+            </h5>
+            <div class="h5 font-weight-300">
+              <i class="ni location_pin mr-2"></i>{{ current_user.email }}
+            </div>
+            <div class="h5 mt-4">
+              <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
+            </div>
+            <div>
+              <i class="ni education_hat mr-2"></i>University of Computer Science
+            </div>
+          </div>
+        </div>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
       </div>
     </div>
     <div class="col-xl-8 order-xl-1">
@@ -29,27 +93,47 @@
         <div class="card-header">
           <div class="row align-items-center">
             <div class="col-8">
+<<<<<<< HEAD
               <h3 class="mb-0">정보 등록하기</h3>
             </div>
             <div class="col-4 text-right">
               <a href="#!" class="btn btn-sm btn-primary">확인</a>
+=======
+              <h3 class="mb-0">Edit profile </h3>
+            </div>
+            <div class="col-4 text-right">
+              <a href="#!" class="btn btn-sm btn-primary">Settings</a>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
             </div>
           </div>
         </div>
         <div class="card-body">
           <form>
+<<<<<<< HEAD
             <h6 class="heading-small text-muted mb-4">주최자 정보</h6>
+=======
+            <h6 class="heading-small text-muted mb-4">User information</h6>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
             <div class="pl-lg-4">
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-username">주최기관</label>
                     <input type="text" id="input-username" class="form-control" placeholder="Username" value="{{ 여기고치기! }}">
+=======
+                    <label class="form-control-label" for="input-username">Username</label>
+                    <input type="text" id="input-username" class="form-control" placeholder="Username" value="{{ current_user.username }}">
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-email">담당자 이름</label>
+=======
+                    <label class="form-control-label" for="input-email">Email address</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input type="email" id="input-email" class="form-control" placeholder="{{ current_user.email }}">
                   </div>
                 </div>
@@ -57,13 +141,21 @@
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-first-name">담당자 연락처</label>
+=======
+                    <label class="form-control-label" for="input-first-name">First name</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input type="text" id="input-first-name" class="form-control" placeholder="First name" value="Lucky">
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-last-name"></label>
+=======
+                    <label class="form-control-label" for="input-last-name">Last name</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input type="text" id="input-last-name" class="form-control" placeholder="Last name" value="Jesse">
                   </div>
                 </div>
@@ -71,12 +163,20 @@
             </div>
             <hr class="my-4" />
             <!-- Address -->
+<<<<<<< HEAD
             <h6 class="heading-small text-muted mb-4">페스티벌 상세정보</h6>
+=======
+            <h6 class="heading-small text-muted mb-4">Contact information</h6>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
             <div class="pl-lg-4">
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-address">페스티벌 명</label>
+=======
+                    <label class="form-control-label" for="input-address">Address</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input id="input-address" class="form-control" placeholder="Home Address" value="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09" type="text">
                   </div>
                 </div>
@@ -84,19 +184,31 @@
               <div class="row">
                 <div class="col-lg-4">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-city">개최 기간</label>
+=======
+                    <label class="form-control-label" for="input-city">City</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input type="text" id="input-city" class="form-control" placeholder="City" value="New York">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-country">개최 장소</label>
+=======
+                    <label class="form-control-label" for="input-country">Country</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input type="text" id="input-country" class="form-control" placeholder="Country" value="United States">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
+<<<<<<< HEAD
                     <label class="form-control-label" for="input-country">페스티벌 공식홈페이지</label>
+=======
+                    <label class="form-control-label" for="input-country">Postal code</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                     <input type="number" id="input-postal-code" class="form-control" placeholder="Postal code">
                   </div>
                 </div>
@@ -104,10 +216,17 @@
             </div>
             <hr class="my-4" />
             <!-- Description -->
+<<<<<<< HEAD
             <h6 class="heading-small text-muted mb-4">페스티벌 상세 설명</h6>
             <div class="pl-lg-4">
               <div class="form-group">
                 <label class="form-control-label">기타 페스티벌 사항</label>
+=======
+            <h6 class="heading-small text-muted mb-4">About me</h6>
+            <div class="pl-lg-4">
+              <div class="form-group">
+                <label class="form-control-label">About Me</label>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
                 <textarea rows="4" class="form-control" placeholder="A few words about you ...">A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</textarea>
               </div>
             </div>

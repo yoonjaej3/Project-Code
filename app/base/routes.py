@@ -93,6 +93,7 @@ def logout():
     logout_user()
     return redirect(url_for('base_blueprint.login'))
 
+<<<<<<< HEAD
 
 # ## ------- 주최자 등록  ------------
 # @blueprint.route('/org/register', methods='GET', 'POST')
@@ -124,6 +125,8 @@ def logout():
 
 
 
+=======
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
 ## Errors
 
 @login_manager.unauthorized_handler
@@ -141,5 +144,8 @@ def not_found_error(error):
 @blueprint.errorhandler(500)
 def internal_error(error):
     return render_template('page-500.html'), 500
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94

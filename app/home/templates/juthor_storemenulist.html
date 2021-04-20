@@ -1,10 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-<<<<<<< HEAD
-{% block title %} 관리자 메인 {% endblock title %}
-=======
 {% block title %} 주문하기 {% endblock title %}
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
 
 {% block content %}
 
@@ -13,11 +9,7 @@
       <div class="header-body">
         <div class="row align-items-center py-4">
           <div class="col-lg-6 col-7">
-<<<<<<< HEAD
-            <h6 class="h2 text-white d-inline-block mb-0">주최기관 보기</h6>
-=======
             <h6 class="h2 text-white d-inline-block mb-0">Tables</h6>
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
             <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
                 <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
@@ -27,13 +19,8 @@
             </nav>
           </div>
           <div class="col-lg-6 col-5 text-right">
-<<<<<<< HEAD
-            <a href="#" class="btn btn-sm btn-neutral">등록하기</a>
-            <a href="#" class="btn btn-sm btn-neutral">정보수정하기</a>
-=======
             <a href="#" class="btn btn-sm btn-neutral">New</a>
             <a href="#" class="btn btn-sm btn-neutral">Filters</a>
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
           </div>
         </div>
       </div>
@@ -47,23 +34,36 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-<<<<<<< HEAD
-            <h3 class="mb-0">주최기관 리스트</h3>
-=======
             <h3 class="mb-0">주문 하기</h3>
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
           </div>
           <!-- Light table -->
           <div class="table-responsive">
             <table class="table">
-              
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col" class="sort">메뉴</th>
+                  <th scope="col" class="sort">가격</th>
+                  <th scope="col">선택하기</th>
+                </tr>
+              </thead>
+              <tbody class="list">
+              <form form action="/insert" method="POST">
+                {% for datas in data_list%}
+                <tbody>
+                    <tr>
+                        <td style="width:10%;padding-right:5px">{{datas[0]}}</td>
+                        <td style="padding-left:5px">{{datas[1]}}</td>
+                        <td><input type="checkbox" class="get_value" name="datas" value="{{datas[0]}}"></td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+                <button class= "btn btn-link" type="submit">장바구니 담기</button>
+              </form>
             </table>
           </div>
         </div>
       </div>
     </div>
-
-
     {% include "includes/footer.html" %}
 
   </div>
@@ -71,4 +71,30 @@
 {% endblock content %}
 
 <!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+  $(document).ready(function() {
+      $('#submit').click(function() {
+          var insert = [];
+          $('.get_value').each(function() {
+              if ($(this).is(":checked")) {
+                  insert.push($(this).val());
+              }
+          });
+                     
+          $.ajax({
+              method: "POST",
+              url: "/insert",
+              data: insert,
+              cache: false,
+              success: function(data){    
+                $("#result").html(data);
+              },
+              error: function (request, status, error) {
+                alert(error);
+            }
+          });
+      });
+  });
+</script>
+{% endblock javascripts %}

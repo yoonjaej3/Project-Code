@@ -4,6 +4,7 @@
 
 {% block content %}
 
+<<<<<<< HEAD
 <div class="header bg-primary pb-6">
   <div class="container-fluid">
     <div class="header-body">
@@ -21,10 +22,31 @@
         <div class="col-lg-6 col-5 text-right">
           <a href="#" class="btn btn-sm btn-neutral">New</a>
           <a href="#" class="btn btn-sm btn-neutral">Filters</a>
+=======
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Tables</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Tables</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tables</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="col-lg-6 col-5 text-right">
+            <a href="#" class="btn btn-sm btn-neutral">New</a>
+            <a href="#" class="btn btn-sm btn-neutral">Filters</a>
+          </div>
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
         </div>
       </div>
     </div>
   </div>
+<<<<<<< HEAD
 </div>
 
 <!-- Page content -->
@@ -133,3 +155,34 @@
   });
 </script>
 {% endblock javascripts %}
+=======
+  
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <!-- Card header -->
+          <div class="card-header border-0">
+            <h3 class="mb-0">주문 하기</h3>
+          </div>
+          <!-- Light table -->
+          <div class="table-responsive">
+            <table class="table">
+              
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    {% include "includes/footer.html" %}
+
+  </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
+>>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
