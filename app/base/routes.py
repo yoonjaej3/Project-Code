@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from flask import jsonify, render_template, redirect, request, url_for
+from flask import jsonify, render_template, redirect, request, url_for, session
 from flask_login import (
     current_user,
     login_required,
@@ -19,10 +19,68 @@ from app.base.models import User
 from app.base.util import verify_pass
 import pymysql
 
+from flask import Flask
+from authlib.integrations.flask_client import OAuth
+from functools import wraps
+from os import environ as env
+from werkzeug.exceptions import HTTPException
+from dotenv import load_dotenv, find_dotenv
+from six.moves.urllib.parse import urlencode
+
+import constants, json
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+
+AUTH0_CALLBACK_URL = env.get(constants.AUTH0_CALLBACK_URL)
+AUTH0_CLIENT_ID = env.get(constants.AUTH0_CLIENT_ID)
+AUTH0_CLIENT_SECRET = env.get(constants.AUTH0_CLIENT_SECRET)
+AUTH0_DOMAIN = env.get(constants.AUTH0_DOMAIN)
+AUTH0_BASE_URL = 'https://' + AUTH0_DOMAIN
+AUTH0_AUDIENCE = env.get(constants.AUTH0_AUDIENCE)
+
+app2 = Flask(__name__, static_url_path='/public', static_folder='./public')
+app2.secret_key = constants.SECRET_KEY
+app2.debug = True
+
+@app2.errorhandler(Exception)
+def handle_auth_error(ex):
+    response = jsonify(message=str(ex))
+    response.status_code = (ex.code if isinstance(ex, HTTPException) else 500)
+    return response
+
+
+oauth = OAuth(app)
+
+auth0 = oauth.register(
+    'auth0',
+    client_id=AUTH0_CLIENT_ID,
+    client_secret=AUTH0_CLIENT_SECRET,
+    api_base_url=AUTH0_BASE_URL,
+    access_token_url=AUTH0_BASE_URL + '/oauth/token',
+    authorize_url=AUTH0_BASE_URL + '/authorize',
+    client_kwargs={
+        'scope': 'openid profile email',
+    },
+)
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if constants.PROFILE_KEY not in session:
+            return redirect('/login')
+        return f(*args, **kwargs)
+
+    return decorated
+
+
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
+    'password': 'mysql',
     'database': 'mydb'
 }
 
@@ -81,31 +139,36 @@ def login():
     return redirect(url_for('home_blueprint.index'))
 
 
-@blueprint.route('/login_user', methods=['GET', 'POST'])
+@app2.route('/login_user', methods=['GET', 'POST'])
 def user_login():
-    login_form = LoginForm(request.form)
-    if 'login' in request.form:
-        
-        # read form data
-        username = request.form['username']
-        password = request.form['password']
+    return render_template('home.html')
 
-        # Locate user
-        user = User.query.filter_by(username=username).first()
-        
-        # Check the password
-        if user and verify_pass( password, user.password):
+@app2.route('/login_auth')
+def auth_login():
+    return auth0.authorize_redirect(redirect_uri=AUTH0_CALLBACK_URL, audience=AUTH0_AUDIENCE)
 
-            login_user(user)
-            return redirect(url_for('base_blueprint.user_login'))
+@app2.route('/callback')
+def callback_handling():
+    auth0.authorize_access_token()
+    resp = auth0.get('userinfo')
+    userinfo = resp.json()
+    
+    session[constants.JWT_PAYLOAD] = userinfo
+    session[constants.PROFILE_KEY] = {
+        'user_id': userinfo['sub'],
+        'name': userinfo['name'],
+        'picture': userinfo['picture']
+    }
+    return redirect('/dashboard')
 
-        # Something (user or pass) is not ok
-        return render_template( 'accounts/login_user.html', msg='Wrong user or password', form=login_form)
+@app2.route('/dashboard')
+@requires_auth
+def dashboard():
+    return render_template('dashboard.html',
+                           userinfo=session[constants.PROFILE_KEY],
+                           userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD], indent=4))
 
-    if not current_user.is_authenticated:
-        return render_template( 'accounts/login_user.html',
-                                form=login_form)
-    return redirect(url_for('home_blueprint.index'))
+
 
 @blueprint.route('/register', methods=['GET', 'POST'])
 def register():
@@ -150,7 +213,12 @@ def logout():
     logout_user()
     return redirect(url_for('base_blueprint.login'))
 
- 
+@app2.route('/logout_auth')
+def auth_logout():
+    session.clear()
+    params = {'returnTo': url_for('home', _external=True), 'client_id': AUTH0_CLIENT_ID}
+    return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
+
 
 ## Errors
 
