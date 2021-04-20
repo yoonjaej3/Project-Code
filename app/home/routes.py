@@ -53,22 +53,41 @@ def index2():
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
+#############실험실###################
+# @blueprint.route('/jan_apply')
+# @login_required
+# def index2_1():
+
+#     db = pymysql.connect(**config)
+#     cur = db.cursor()
+#     sql = "SELECT * from festival, organization"
+#     cur.execute(sql)
+
+#     data_list = cur.fetchall()
+    
+#     return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
+#############여기까지 실험하고 지우기#############
 
 @blueprint.route('/jan_apply', methods=['GET', 'POST'])
-
 @login_required
 def index2_1():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from organization, festival"
-    cur.execute(sql)
+    data = request.get_json()
 
-    data_list = cur.fetchall()
+    print(type(data))
+    print(data)
+    print("request: ", data)
     
-    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
+    sql = "insert into organization (company_name, manager_name, manager_contact) values (%s, %s, %s);"
+    cur.execute(sql, [data['holder'], data['manager_name'], data['manager_contact']])
 
+    db.commit()
+    db.close()
+    # data_list = cur.fetchall()
+    return jsonify(result="success", result2=data)
 
-@blueprint.route('/jan_festival', methods=['GET', 'POST'])
+@blueprint.route('/jan_festival')
 @login_required
 def index2_2():
 

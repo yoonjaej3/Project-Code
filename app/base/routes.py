@@ -21,8 +21,9 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
+    'password': 'root0127:)',
     'database': 'mydb',
     'charset': 'utf8'
 }
@@ -51,7 +52,6 @@ def index_init():
     data_list = cur.fetchall()
     
     return render_template('accounts/festival_init.html', segment='index_init', data_list=data_list)
-
 
 ## Login & Registration
 
