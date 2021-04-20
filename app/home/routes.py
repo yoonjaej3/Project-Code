@@ -12,7 +12,7 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
     'database': 'mydb'
 }
@@ -142,6 +142,7 @@ def get_menu():
 
     return data_list
 
+  
 # <<<------------현재-------------->>>
 class Order(flask_restful.Resource):
     def __init__(self):
