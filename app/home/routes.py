@@ -14,8 +14,8 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'root0127:)',
-    'database': 'mydb'
+    'database': 'mydb',
+    'password': 'mysql'
 }
 
 @blueprint.route('/jaesung_festivalList')
@@ -30,6 +30,10 @@ def index():
     data_list = cur.fetchall()
     
     return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
+
+@blueprint.route('/jaesung_login')
+def js_login():
+    return render_template('jaesung_login.html')
 
 
 @blueprint.route('/jan_festival')
