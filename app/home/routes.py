@@ -193,21 +193,25 @@ def credit_get():
     try:
         with conn.cursor() as cursor:
             sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                        ON a.store_id = b.store_id WHERE a.order_id = 2'''
+                        ON a.store_id = b.store_id WHERE a.user_id = 1'''
             cursor.execute(sql)
 
         store_data = cursor.fetchall()
 
         with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE order_id=2"
+            sql = "SELECT total_price FROM orders WHERE user_id=1"
             cursor.execute(sql)
 
         price_data = cursor.fetchall()
 
     finally:
+        data_list = []
+        for i, j in zip(store_data, price_data):
+            data_list.append(i + j)
+
         conn.close()
 
-    return render_template('jhj_credit.html', data_store=store_data, data_price=price_data)
+    return render_template('jhj_credit.html', data_list=data_list)
 
 
 
