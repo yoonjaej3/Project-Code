@@ -13,7 +13,7 @@
     <div class="row">
       <div class="col-lg-7 col-md-10">
         <h1 class="display-2 text-white">안녕하세요, {{ current_user.username }}님!</h1>
-        <a href="#!" class="btn btn-neutral">정보 수정하기</a>
+
       </div>
     </div>
   </div>
@@ -29,10 +29,10 @@
         <div class="card-header">
           <div class="row align-items-center">
             <div class="col-8">
-              <h3 class="mb-0">정보 등록하기</h3>
+              <h3 class="mb-0">주최자 정보 등록하기</h3>
             </div>
             <div class="col-4 text-right">
-              <a href="#!" class="btn btn-sm btn-primary">확인</a>
+              <a href="#!" type="submit" class="btn btn-sm btn-primary">저장하기</a>
             </div>
           </div>
         </div>
@@ -43,28 +43,29 @@
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-username">주최기관</label>
-                    <input type="text" id="input-username" class="form-control" placeholder="Username" value="{{ 여기고치기! }}">
+                    <form action='/jan_apply' method='POST'>
+                    <label class="form-control-label" for="input-holder">주최기관</label>
+                    <input type="text" id="input-holder" class="form-control" placeholder="Organization">
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-email">담당자 이름</label>
-                    <input type="email" id="input-email" class="form-control" placeholder="{{ current_user.email }}">
+                    <label class="form-control-label" for="input-manager-name">담당자 이름</label>
+                    <input type="text" id="input-manager-name" class="form-control" placeholder="Name">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-first-name">담당자 연락처</label>
-                    <input type="text" id="input-first-name" class="form-control" placeholder="First name" value="Lucky">
+                    <label class="form-control-label" for="input-manager-contact">담당자 연락처</label>
+                    <input type="integer" id="input-manager-contact" class="form-control" placeholder="010-0000-0000">
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-last-name"></label>
-                    <input type="text" id="input-last-name" class="form-control" placeholder="Last name" value="Jesse">
+                    <label class="form-control-label" for="input-option">기타사항</label>
+                    <input type="text" id="input-option" class="form-control" placeholder="Optional  ex) email@email.com" value="">
                   </div>
                 </div>
               </div>
@@ -76,28 +77,28 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-address">페스티벌 명</label>
-                    <input id="input-address" class="form-control" placeholder="Home Address" value="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09" type="text">
+                    <label class="form-control-label" for="input-festival">페스티벌 명</label>
+                    <input id="input-festival" class="form-control" placeholder="Festival title" value="" type="text">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-lg-4">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-city">개최 기간</label>
-                    <input type="text" id="input-city" class="form-control" placeholder="City" value="New York">
+                    <label class="form-control-label" for="input-dates">개최 기간</label>
+                    <input type="text" id="input-dates" class="form-control" placeholder="OOOO.OO.OO-OOOO.OO.OO" value="">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-country">개최 장소</label>
-                    <input type="text" id="input-country" class="form-control" placeholder="Country" value="United States">
+                    <label class="form-control-label" for="input-location">개최 장소</label>
+                    <input type="text" id="input-location" class="form-control" placeholder="Location" value="">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-country">페스티벌 공식홈페이지</label>
-                    <input type="number" id="input-postal-code" class="form-control" placeholder="Postal code">
+                    <label class="form-control-label" for="input-url">페스티벌 공식홈페이지</label>
+                    <input type="number" id="input-url" class="form-control" placeholder="url">
                   </div>
                 </div>
               </div>
@@ -108,7 +109,7 @@
             <div class="pl-lg-4">
               <div class="form-group">
                 <label class="form-control-label">기타 페스티벌 사항</label>
-                <textarea rows="4" class="form-control" placeholder="A few words about you ...">A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</textarea>
+                <textarea rows="4" class="form-control" placeholder="Description"></textarea>
               </div>
             </div>
           </form>

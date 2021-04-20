@@ -15,53 +15,41 @@ config = {
     'port': 3306,
     'user': 'root',
     'password': 'root0127:)',
-    'database': 'mydb'
+    'database': 'mydb',
+    'charset': 'utf-8'
 }
 
-@blueprint.route('/jaesung_festivalList')
-@login_required
-def index():
-
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from festival"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-    
-    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
-
-
-@blueprint.route('/jan_festival')
+@blueprint.route('/jan_festival_using')
 @login_required
 def index2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from festival"
+    sql = "SELECT * from festival, organization"
     cur.execute(sql)
 
     data_list = cur.fetchall()
     
-    return render_template('jan_festival.html', segment='index2', data_list=data_list)
+    return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
-@blueprint.route('/jan_apply')
+@blueprint.route('/jan_apply', methods=['GET', 'POST'])
 @login_required
 def index2_1():
+    # if method == 
+
 
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from organization"
+    sql = "SELECT * from organization, festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
     
     return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
 
-
-@blueprint.route('/juthor_dash')
+@blueprint.route('/jan_festival', methods=['GET', 'POST'])
 @login_required
-def index3():
+def index2_2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -70,7 +58,8 @@ def index3():
 
     data_list = cur.fetchall()
     
-    return render_template('juthor_dash.html', segment='index3', data_list=data_list)
+    return render_template('jan_festival.html', segment='index2_2', data_list=data_list)
+
 
 @blueprint.route('/<template>')
 @login_required
