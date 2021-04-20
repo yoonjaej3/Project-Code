@@ -51,6 +51,19 @@ def index2():
     
     return render_template('jan_festival.html', segment='index2', data_list=data_list)
 
+@blueprint.route('/jan_apply')
+@login_required
+def index2_1():
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT * from organization"
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    
+    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
+
 
 @blueprint.route('/juthor_dash')
 @login_required
