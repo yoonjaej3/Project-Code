@@ -195,5 +195,3 @@ def not_found_error(error):
 @blueprint.errorhandler(500)
 def internal_error(error):
     return render_template('page-500.html'), 500
-
-
