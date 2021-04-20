@@ -19,7 +19,7 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
     'database': 'mydb',
     'password': 'mysql'
@@ -136,7 +136,7 @@ def get_menu():
     return data_list
   
   
- class Order(flask_restful.Resource):
+class Order(flask_restful.Resource):
     def __init__(self):
         self.conn = pymysql.connect(**config)
         self.cursor = self.conn.cursor()
