@@ -21,15 +21,16 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 3306,
+    'port': 13306,
     'user': 'root',
-    'database': 'mydb',
-    'password': 'mysql'
+    'database': 'mydb'
 }
+
 
 @blueprint.route('/')
 def route_default():
     return redirect(url_for('base_blueprint.index_init'))
+
 
 @blueprint.route('/festival_init', methods=['GET', 'POST'])
 def index_init():
@@ -39,8 +40,10 @@ def index_init():
     if json_data:
         sql = '''INSERT INTO festival(org_id, festival_name, period, location, url)
                 VALUES(%s, %s, %s, %s, %s)'''
-        cur.execute(sql, [json_data['org_id'], json_data['festival_name'], json_data['period'], json_data['location'], json_data['url']])
+        cur.execute(sql, [json_data['org_id'], json_data['festival_name'],
+                          json_data['period'], json_data['location'], json_data['url']])
         db.commit()
+
     sql = "SELECT * from festival"
     cur.execute(sql)
 
@@ -147,36 +150,7 @@ def logout():
     logout_user()
     return redirect(url_for('base_blueprint.login'))
 
-
-# ## ------- 주최자 등록  ------------
-# @blueprint.route('/org/register', methods='GET', 'POST')
-# def register_org():
-#     # login_form = LoginForm(request.form)
-#     org_register = RegisterOrganizationForm(request.form)
-#     if '' in request.form:
-#         username  = request.form['username']
-#         email     = request.form['email'   ]
-
-#         # Check usename exists
-#         user = User.query.filter_by(username=username).first()
-#         if user:
-#             return render_template( 'accounts/register.html', 
-#                                     msg='Username already registered',
-#                                     success=False,
-#                                     form=create_account_form)
-
-#         # Check email exists
-#         user = User.query.filter_by(email=email).first()
-#         if user:
-#             return render_template( 'accounts/register.html', 
-#                                     msg='Email already registered', 
-#                                     success=False,
-#                                     form=create_account_form)
-    
-
-    
-
-
+ 
 
 ## Errors
 
