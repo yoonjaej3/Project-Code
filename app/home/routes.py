@@ -3,16 +3,10 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from app.home import blueprint
-from flask import render_template, redirect, url_for, request
+from flask import render_template, request, jsonify
 from flask_login import login_required, current_user
-import flask_restful
-from app import login_manager
 from jinja2 import TemplateNotFound
-from app.home.database import menulist
 import flask_restful
-
-import json
-import uuid
 import pymysql
 
 
@@ -20,8 +14,7 @@ config = {
     'host': '127.0.0.1',
     'port': 13306,
     'user': 'root',
-    'database': 'mydb',
-    'password': 'mysql'
+    'database': 'mydb'
 }
 
 # <<<------------재성-------------->>>
@@ -37,6 +30,7 @@ def index():
     data_list = cur.fetchall()
     
     return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
+
 
 @blueprint.route('/jaesung_login')
 def js_login():
@@ -57,12 +51,11 @@ def index2():
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
+
 @blueprint.route('/jan_apply', methods=['GET', 'POST'])
+
 @login_required
 def index2_1():
-    # if method == 
-
-
     db = pymysql.connect(**config)
     cur = db.cursor()
     sql = "SELECT * from organization, festival"
@@ -105,10 +98,8 @@ def index3():
 
 @blueprint.route('/juthor_category')
 @login_required
-
 def category():
-    db = pymysql.connect(host="localhost", user="root", password="mysql",
-                        db="mydb", charset="utf8")
+    db = pymysql.connect(**config)
     cur = db.cursor()
     sql = '''select unique category, count(category) as '가게 수'
              from store
@@ -118,11 +109,11 @@ def category():
     data_list = cur.fetchall()
     return render_template('juthor_category.html', segment='category', data_list=data_list)
 
+
 @blueprint.route('/juthor_storelist')
 @login_required
-def storelist():
-    db = pymysql.connect(host="localhost", user="root", password="mysql",
-                        db="mydb", charset="utf8")
+def store_list():
+    db = pymysql.connect(**config)
     cur = db.cursor()
     sql = '''select store_name, store_description, location_number
              from store
@@ -136,25 +127,20 @@ def storelist():
 @blueprint.route('/juthor_storemenulist')
 @login_required
 def store_menulist():
-    data_list=get_menu()
+    data_list = get_menu()
     return render_template('juthor_storemenulist.html', segment='storemenulist', data_list=data_list)
 
+
 def get_menu():
-    db = pymysql.connect(host="localhost", user="root", password="mysql",
-                        db="mydb", charset="utf8")
-    
+    db = pymysql.connect(**config)
+
     cur = db.cursor()
-    sql = '''
-        select menu_name, menu_price
-        from menu
-        where store_id=3''' 
+    sql = '''select menu_name, menu_price from menu where store_id=3'''
 
     cur.execute(sql)
     data_list = cur.fetchall()
-    return data_list
-  
-  
 
+    return data_list
 
 # <<<------------현재-------------->>>
 class Order(flask_restful.Resource):
@@ -164,7 +150,7 @@ class Order(flask_restful.Resource):
 
     @blueprint.route('/jhj_order')
     @login_required
-    def order_get(self, order_id):
+    def order_get(self):
         sql = '''SELECT total_price FROM orders WHERE order_id=2'''
 
         self.cursor.execute(sql)
@@ -172,20 +158,20 @@ class Order(flask_restful.Resource):
         data_list = self.cursor.fetchall()
 
         return render_template('jhj_order.html', data_list=data_list)
-  
+
     @blueprint.route('/order_post', methods=['POST'])
     @login_required
     def order_post(self):
         json_data = request.get_json()
 
         try:
-            with self.conn.cursor() as cursor:
+            with self.cursor:
                 sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
                 self.cursor.execute(sql, [json_data['phone_number']])
 
             self.conn.commit()
 
-            with self.conn.cursor() as cursor:
+            with self.cursor:
                 sql = "UPDATE orders SET requests=%s WHERE order_id=3"
                 self.cursor.execute(sql, [json_data['request_text']])
 
@@ -200,14 +186,14 @@ class Order(flask_restful.Resource):
     @login_required
     def credit_get(self):
         try:
-            with self.conn.cursor() as cursor:
+            with self.cursor:
                 sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                        ON a.store_id = b.store_id WHERE a.order_id = 2'''
+                            ON a.store_id = b.store_id WHERE a.order_id = 2'''
                 self.cursor.execute(sql)
 
             store_data = self.cursor.fetchall()
 
-            with self.conn.cursor() as cursor:
+            with self.cursor:
                 sql = "SELECT total_price FROM orders WHERE order_id=2"
                 self.cursor.execute(sql)
 
@@ -223,32 +209,29 @@ class Order(flask_restful.Resource):
 # <<<------------현주_2-------------->>>
 @blueprint.route('/insert', methods=['POST'])
 @login_required
-def insert() :
-    # print("hi im holee")
-    # print(request)
-
+def insert():
     data = request.get_json()
 
     print(type(data))
     print(data, "asdf")
     print("request: ", request.get_json())
-    
+
 # data 에서 받은 값들이 문자열로 내가 하나하나 다룰수있음을 확신하는 코드로 확인
 
 # DB algo
-    db = pymysql.connect(host="localhost", user="root", password="mysql",
-                        db="mydb", charset="utf8")
+    db = pymysql.connect(**config)
     cur = db.cursor()
 
     for d in data['menu']:
         sql = "insert into order_detail (order_id, menu_name, food_qty, food_price)\
                select 1, %s, 1, menu_price from menu where menu.menu_name=%s"
         cur.execute(sql, (d, d))
-    
+
     db.commit()
     db.close()
     # return "hello"
     return render_template('juthor_cart.html', segment='cartlist')
+
 
 @blueprint.route('/juthor_cart')
 @login_required
@@ -256,15 +239,15 @@ def store_cartlist():
     data_list=get_cartlist()
     return render_template('juthor_cart.html', segment='cartlist', data_list=data_list)
 
+
 def get_cartlist():
-    db = pymysql.connect(host="localhost", user="root", password="mysql",
-                        db="mydb", charset="utf8")
-    
+    db = pymysql.connect(**config)
+
     cur = db.cursor()
     sql = '''
         select menu_name, food_price, food_qty
         from order_detail
-        where order_id=1''' 
+        where order_id=1'''
 
     cur.execute(sql)
     data_list = cur.fetchall()
@@ -294,7 +277,7 @@ def route_template(template):
 
 
 # Helper - Extract current page name from request 
-def get_segment( request ): 
+def get_segment(request):
 
     try:
 
