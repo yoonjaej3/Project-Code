@@ -17,7 +17,7 @@ from app.base.forms import LoginForm, CreateAccountForm
 from app.base.models import User
 
 from app.base.util import verify_pass
-import pymysql
+import pymysql, json
 
 from flask import Flask
 from authlib.integrations.flask_client import OAuth
@@ -27,7 +27,7 @@ from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv, find_dotenv
 from six.moves.urllib.parse import urlencode
 
-import constants, json
+from app.base import constants
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -51,7 +51,7 @@ def handle_auth_error(ex):
     return response
 
 
-oauth = OAuth(app)
+oauth = OAuth(app2)
 
 auth0 = oauth.register(
     'auth0',
