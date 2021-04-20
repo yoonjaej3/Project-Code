@@ -127,66 +127,69 @@ def get_menu():
     return data_list
 
 
-class Order(flask_restful.Resource):
-    def __init__(self):
-        self.conn = pymysql.connect(**config)
-        self.cursor = self.conn.cursor()
+@blueprint.route('/jhj_order')
+@login_required
+def order_get():
+    conn = pymysql.connect(**config)
+    cursor = conn.cursor()
 
-    @blueprint.route('/jhj_order')
-    @login_required
-    def order_get(self):
-        sql = '''SELECT total_price FROM orders WHERE order_id=2'''
+    sql = '''SELECT total_price FROM orders WHERE order_id=2'''
 
-        self.cursor.execute(sql)
+    cursor.execute(sql)
 
-        data_list = self.cursor.fetchall()
+    data_list = cursor.fetchall()
 
-        return render_template('jhj_order.html', data_list=data_list)
+    return render_template('jhj_order.html', data_list=data_list)
 
-    @blueprint.route('/order_post', methods=['POST'])
-    @login_required
-    def order_post(self):
-        json_data = request.get_json()
 
-        try:
-            with self.cursor:
-                sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
-                self.cursor.execute(sql, [json_data['phone_number']])
+@blueprint.route('/order_post', methods=['POST'])
+@login_required
+def order_post():
+    json_data = request.get_json()
+    conn = pymysql.connect(**config)
 
-            self.conn.commit()
+    try:
+        with conn.cursor() as cursor:
+            sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
+            cursor.execute(sql, [json_data['phone_number']])
 
-            with self.cursor:
-                sql = "UPDATE orders SET requests=%s WHERE order_id=3"
-                self.cursor.execute(sql, [json_data['request_text']])
+        conn.commit()
 
-            self.conn.commit()
+        with conn.cursor() as cursor:
+            sql = "UPDATE orders SET requests=%s WHERE order_id=3"
+            cursor.execute(sql, [json_data['request_text']])
 
-        finally:
-            self.conn.close()
+        conn.commit()
 
-        return jsonify(result="success", result2=json_data)
+    finally:
+        conn.close()
 
-    @blueprint.route('/jhj_credit')
-    @login_required
-    def credit_get(self):
-        try:
-            with self.cursor:
-                sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                            ON a.store_id = b.store_id WHERE a.order_id = 2'''
-                self.cursor.execute(sql)
+    return jsonify(result="success", result2=json_data)
 
-            store_data = self.cursor.fetchall()
 
-            with self.cursor:
-                sql = "SELECT total_price FROM orders WHERE order_id=2"
-                self.cursor.execute(sql)
+@blueprint.route('/jhj_credit')
+@login_required
+def credit_get():
+    conn = pymysql.connect(**config)
 
-            price_data = self.cursor.fetchall()
+    try:
+        with conn.cursor() as cursor:
+            sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
+                        ON a.store_id = b.store_id WHERE a.order_id = 2'''
+            cursor.execute(sql)
 
-        finally:
-            self.conn.close()
+        store_data = cursor.fetchall()
 
-        return render_template('jhj_credit.html', data_store=store_data, data_price=price_data)
+        with conn.cursor() as cursor:
+            sql = "SELECT total_price FROM orders WHERE order_id=2"
+            cursor.execute(sql)
+
+        price_data = cursor.fetchall()
+
+    finally:
+        conn.close()
+
+    return render_template('jhj_credit.html', data_store=store_data, data_price=price_data)
 
 
 @blueprint.route('/insert', methods=['POST'])
@@ -226,10 +229,7 @@ def get_cartlist():
     db = pymysql.connect(**config)
 
     cur = db.cursor()
-    sql = '''
-        select menu_name, food_price, food_qty
-        from order_detail
-        where order_id=1'''
+    sql = '''select menu_name, food_price, food_qty from order_detail where order_id=1'''
 
     cur.execute(sql)
     data_list = cur.fetchall()
