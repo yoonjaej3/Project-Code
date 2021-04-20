@@ -1,9 +1,3 @@
-{% extends 'layouts/base.html' %}
-
-{% block title %} 주문하기 {% endblock title %}
-
-{% block content %}
-
   <div class="header bg-primary pb-6">
     <div class="container-fluid">
       <div class="header-body">
@@ -28,90 +22,69 @@
   </div>
   
   <!-- Page content -->
-    <div class="container-fluid mt--6">
-      <div class="row">
-        <div class="col">
-          <div class="card">
-            <!-- Card header -->
-            <div class="card-header border-0">
-              <h3 class="mb-0">주문 하기</h3>
-            </div>
-            <!-- Light table -->
-            <div class="table-responsive">
-              <table class="table">
-                <!-- action="/insert" -->
-                <form>
-					{% for datas in data_list%}
-					<tbody>
-						<tr>
-							<td style="width:10%;padding-right:5px">{{datas[0]}}</td>
-							<td style="padding-left:5px">{{datas[1]}}</td>
-							<td><input type="checkbox" class="menuInput" name="{{datas[0]}}"></td>
-						</tr>
-					</tbody>
-					{% endfor %}                        
-                  <div class="btn btn-link" onclick="menuPost()">장바구니 담기</div>
-                  <!-- <button class= "btn btn-link" id="submit" onclick="menuPost()">장바구니</button> -->
-                </form>
-              </table>
-            </div>
+  <div class="container-fluid mt--6">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <!-- Card header -->
+          <div class="card-header border-0">
+            <h3 class="mb-0">주문 하기</h3>
+          </div>
+          <!-- Light table -->
+          <div class="table-responsive">
+            <table class="table">
+              <!-- action="/insert" -->
+              <form>
+                
+                <tbody>
+                    <th>
+                        <td style="width:10%;padding-right:5px">메뉴</td>
+                        <td style="padding-left:5px">가격</td>
+                    </th>
+                    <tr>
+                      <td style="width:10%;padding-right:5px">치킨</td>
+                      <td style="padding-left:5px">15000</td>
+                      <td><input type="checkbox" class="get_value"  name="chicken" id="menu"></td>
+                  </tr>
+                  <tr>
+                    <td style="width:10%;padding-right:5px">똥집</td>
+                    <td style="padding-left:5px">5100</td>
+                    <td><input type="checkbox" class="get_value"  name="ddong" id="menu"></td>
+                </tr>
+                </tbody>
+                
+                <div class="btn btn-link" id="submit" onclick="menuPost()">장바구니</div>
+                <!-- <button class= "btn btn-link" id="submit" onclick="menuPost()">장바구니</button> -->
+              </form>
+            </table>
           </div>
         </div>
       </div>
+    </div>
 
-    {% include "includes/footer.html" %}
-
-  </div>
-
-{% endblock content %}
-
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}
 
 <script>
-	/* METHOD 1 */
-    // for (let element of menuInput) {
-	// 	if (element.checked)
-    // 		data.push({"name": element.name, "checked":element.checked});
-    // }
-	const END_POINT_API = "http://localhost:5000";
-
-  	function menuPost() {
-		const menuInput = document.getElementsByClassName("menuInput");
-		let checkedValue = [];
-		let data = {};
-		
-		for (let element of menuInput) {
-			if (element.checked)
-				checkedValue.push(element.name);
-		}
-		data = {
-			"menu": checkedValue
-		}
-
-		fetch(END_POINT_API + '/insert', {
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(data),
-		})
-		.then((response)=>{
-			console.log(response.status);
-			if (response.status === 200) {
-				if(confirm("정상적으로 담았습니다. 장바구니로 이동하시겠습니까?") == true){
-					window.location.href = "/juthor_cart";
-				}
-				else{
-					window.location.href = '/juthor_storelist';
-				}     
-				//alert("보냈습니다.")
-			}
-		})
-		.catch(err=>{
-			console.log(err)
-		})
-	}
+  function menuPost() {
+    const value = document.getElementsByClassName("get_value");
+    // console.log(value[0].checked)
+    for (let element of value) {
+      console.log(element.name,element.checked)
+      fetch('http://localhost:5000/insert', {
+        method: "POST",
+        // headers: {
+        //   'Content-Type': 'application/json',
+        // },
+        // body: JSON.stringify(data),
+        body: "hi",
+      })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          console.log(JSON.stringify(myJson));
+        });
+    }
+  }
 </script>
 
 <!-- <script> 이건 원본코드... 
@@ -169,4 +142,3 @@
   });
 </script>  -->
 
-{% endblock javascripts %}

@@ -4,22 +4,6 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from app.home import blueprint
-<<<<<<< HEAD
-from flask import render_template, redirect, url_for, request, jsonify
-from flask_login import login_required, current_user
-from app import login_manager
-from jinja2 import TemplateNotFound
-import pymysql
-
-config = {
-    'host': '127.0.0.1',
-    'port': 3306,
-    'user': 'root',
-    'password': 'root0127:)',
-    'database': 'mydb'
-}
-
-=======
 from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import login_manager
@@ -40,7 +24,6 @@ config = {
 }
 
 
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
 @blueprint.route('/jaesung_festivalList')
 @login_required
 def index():
@@ -68,22 +51,6 @@ def index2():
     
     return render_template('jan_festival.html', segment='index2', data_list=data_list)
 
-<<<<<<< HEAD
-@blueprint.route('/jan_apply')
-@login_required
-def index2_1():
-
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from organization"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-    
-    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
-
-=======
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
 
 @blueprint.route('/juthor_dash')
 @login_required
@@ -98,55 +65,6 @@ def index3():
     
     return render_template('juthor_dash.html', segment='index3', data_list=data_list)
 
-<<<<<<< HEAD
-
-@blueprint.route('/jhj_order')
-@login_required
-def order():
-    conn = pymysql.connect(**config)
-    cursor = conn.cursor()
-
-    sql = '''SELECT total_price FROM orders WHERE order_id=3'''
-
-    cursor.execute(sql)
-
-    data_list = cursor.fetchall()
-
-    return render_template('jhj_order.html', data_list=data_list)
-
-
-@blueprint.route('/order_post', methods=['POST'])
-@login_required
-def order_post():
-    json_data = request.get_json()
-
-    conn = pymysql.connect(**config)
-
-    try:
-        with conn.cursor() as cursor:
-            sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
-            cursor.execute(sql, [json_data['phone_number']])
-
-
-        conn.commit()
-
-        with conn.cursor() as cursor:
-            sql = "UPDATE orders SET requests=%s WHERE order_id=3"
-            cursor.execute(sql, [json_data['request_text']])
-
-        conn.commit()
-
-    finally:
-        conn.close()
-
-    return jsonify(result = "success", result2= json_data)
-
-
-# @blueprint.route('/jhj_credit', methods=['POST'])
-# @login_required
-# def credit_get():
-
-=======
 @blueprint.route('/jhj_order')
 @login_required
 def order():
@@ -213,20 +131,31 @@ def get_menu():
 @blueprint.route('/insert', methods=['POST'])
 @login_required
 def insert() :
-    element = request.form.getlist('datas')
-    print(element)
-    menulist.cart_insert(element)
-    return '''
-            <script>
-                alert("저장되었습니다")
-                location.href="/juthor_cart" 
-            </script>
-           ''' 
-    # location.href를 통해 insert 후 페이지 이동하는 것
+    # print("hi im holee")
+    # print(request)
+
+    data = request.get_json()
+
+    print(type(data))
+    print(data, "asdf")
+    print("request: ", request.get_json())
     
-    #return render_template('juthor_cart.html', segment='cart')
+# data 에서 받은 값들이 문자열로 내가 하나하나 다룰수있음을 확신하는 코드로 확인
 
+# DB algo
+    db = pymysql.connect(host="localhost", user="root", password="mysql",
+                        db="mydb", charset="utf8")
+    cur = db.cursor()
 
+    for d in data['menu']:
+        sql = "insert into order_detail (order_id, menu_name, food_qty, food_price)\
+               select 1, %s, 1, menu_price from menu where menu.menu_name=%s"
+        cur.execute(sql, (d, d))
+    
+    db.commit()
+    db.close()
+    # return "hello"
+    return render_template('juthor_cart.html', segment='cartlist')
 
 @blueprint.route('/juthor_cart')
 @login_required
@@ -247,7 +176,6 @@ def get_cartlist():
     cur.execute(sql)
     data_list = cur.fetchall()
     return data_list
->>>>>>> 69574c152d43a8fab8837c63e50a56849886df94
 
 
 @blueprint.route('/<template>')
