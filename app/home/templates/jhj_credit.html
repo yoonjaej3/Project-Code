@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} 주문하기 {% endblock title %}
+{% block title %} 주문내역 {% endblock title %}
 
 {% block content %}
 
@@ -34,14 +34,43 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-            <h3 class="mb-0">주문 하기</h3>
+            <h3 class="mb-0">주문 내역</h3>
           </div>
           <!-- Light table -->
-          <div class="table-responsive">
-            <table class="table">
-              
-            </table>
-          </div>
+            <form role="form" name=frm1>
+              <div class="table-responsive">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">가게 이름</th>
+                      {% for store in data_store %}
+                        <td>{{ store[0] }}</td>
+                      {% endfor %}
+                    </tr>
+                    <tr>
+                      <th scope="row">음식 총 가격</th>
+                      {% for total_price in data_price %}
+                        <td>{{ total_price[0] }}</td>
+                      {% endfor %}
+                    </tr>
+                    <tr>
+                      <th scope="row">주문 상태</th>
+                      <td>
+                        <div class="form-group">
+
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">가게 위치</th>
+                      {% for store in data_store %}
+                        <td>{{ store[1] }}</td>
+                      {% endfor %}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </form>
         </div>
       </div>
     </div>
