@@ -1,8 +1,15 @@
-flask
+flask~=1.1.2
 flask_login
 flask_migrate
 flask_wtf
+flask-restful
 flask_sqlalchemy==2.*
 email_validator
 python-decouple
 gunicorn
+kafka-python
+
+wtforms~=2.3.3
+sqlalchemy~=1.4.5
+pymysql~=1.0.2
+jinja2~=2.11.3
