@@ -114,44 +114,6 @@ def index_init():
 
 
 ## Login & Registration
-
-# @blueprint.route('/login', methods=['GET', 'POST'])
-# def login():
-#     login_form = LoginForm(request.form)
-#     if 'login' in request.form:
-        
-#         # read form data
-#         username = request.form['username']
-#         password = request.form['password']
-
-#         # Locate user
-#         user = User.query.filter_by(username=username).first()
-#         # db = pymysql.connect(**config)
-#         # cur = db.cursor()
-#         # cur.execute('SELECT * FROM users WHERE ID = %s AND Password = %s', (ID, Password,))
-
-#         # Fetch one record and return result
-#         # user = cur.fetchone()
-#         # if user:
-#         #     session['loggedin'] = True
-#         #     session['ID'] = user['ID']
-#         #     return redirect(url_for('base_blueprint.login'))
-            
-
-#         # Check the password
-#         if user and verify_pass( password, user.password):
-
-#             login_user(user)
-#             return redirect(url_for('base_blueprint.login'))
-
-#         # Something (user or pass) is not ok
-#         return render_template( 'accounts/login.html', msg='Wrong user or password', form=login_form)
-
-#     if not current_user.is_authenticated:
-#         return render_template( 'accounts/login.html',
-#                                 form=login_form)
-#     return redirect(url_for('home_blueprint.index'))
-
 # app2 -> blueprint
 @blueprint.route('/login_user')
 def user_login():
@@ -177,6 +139,7 @@ def callback_handling():
     }
     return redirect('/dashboard')
 
+
 # app2 -> blueprint
 @blueprint.route('/dashboard')
 @requires_auth
@@ -184,7 +147,6 @@ def dashboard():
     return render_template('accounts/dashboard.html',
                            userinfo=session[constants.PROFILE_KEY],
                            userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD], indent=4))
-
 
 
 @blueprint.route('/register', methods=['GET', 'POST'])
@@ -235,33 +197,29 @@ def register():
     else:
         return render_template( 'accounts/register.html', form=create_account_form)
 
-# @blueprint.route('/logout')
-# def logout():
-#     logout_user()
-#     return redirect(url_for('base_blueprint.login'))
 
 # app2 -> blueprint
 @blueprint.route('/logout_auth')
 def auth_logout():
     session.clear()
-    # params = {'returnTo': url_for('home', _external=True), 'client_id': AUTH0_CLIENT_ID}
-    # return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
     return redirect(url_for('base_blueprint.index_init'))
 
 
 ## Errors
-
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return render_template('page-403.html'), 403
+
 
 @blueprint.errorhandler(403)
 def access_forbidden(error):
     return render_template('page-403.html'), 403
 
+
 @blueprint.errorhandler(404)
 def not_found_error(error):
     return render_template('page-404.html'), 404
+
 
 @blueprint.errorhandler(500)
 def internal_error(error):
