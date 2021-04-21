@@ -36,12 +36,14 @@
               <th scope="col">결제 종류</th>
               <th scope="col">상태</th>
               <th scope="col">요청 사항</th>
-              <th scope="col">삭제</th>
             </tr>
           </thead>
           <tbody>
             {% for datas in data_list %}
             <tr>
+              <td style="display:none">
+                {{ datas[11] }}
+              </td>
               <td>
                 {{ datas[0] }}
               </td>
@@ -50,6 +52,9 @@
               </td>
               <td>
                 {{ datas[9] }}
+              </td>
+              <td>
+                {{ datas[4] }}
               </td>
               <td>
                 {{ datas[5] }}
@@ -61,16 +66,10 @@
                 {{ datas[7] }}
               </td>
               <td>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">{{ datas[10] }}</button>
+              </td>
+              <td>
                 {{ datas[8] }}
-              </td>
-              <td>
-                {{ datas[11] }}
-              </td>
-              <td>
-                {{ datas[9] }}
-              </td>
-              <td>
-                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
               </td>
             </tr>
             {% endfor %}
@@ -96,15 +95,18 @@
 
 <script>
 
-  $('#execute').click(function () {
+  $("[id^=execute]").click(function () {
 
-    var store_id = $('#store_id').text();
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[0]
+    var order_id = cellIndex.firstChild.data.split(" ").join('');
+    console.log(order_id)
     var postdata = {
-      'store_id': store_id
+      'order_id': order_id
     }
     $.ajax({
       type: 'POST',
-      url: '/myajax_store_delete',
+      url: '/myajax_state_update',
       data: JSON.stringify(postdata),
       dataType: 'JSON',
       contentType: "application/json",
