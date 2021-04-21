@@ -155,39 +155,23 @@ def register():
     create_account_form = CreateAccountForm(request.form)
     if 'register' in request.form:
 
-        # ID            = request.form['ID']
         username      = request.form['username']
         email         = request.form['email']
-        # Password      = request.form['Password']
-        # User_catecory = request.form['User_category']
-        # Phone_number  = request.form['Phone_number']
-    
-
+        
         # Check usename exists
         user = User.query.filter_by(username=username).first()
         
-        # Check username exists
-        # db = pymysql.connect(**config)
-        # cur = db.cursor()
-        # cur.execute('SELECT * FROM users WHERE ID = %s', (Username,))
-        # user = cur.fetchone()
         if user:
             return render_template( 'accounts/register.html', 
                                     msg='Username already registered',
                                     success=False,
                                     form=create_account_form)
 
-        # else we can create the user
-        # cur.execute('INSERT INTO users VALUES (%s, %s, %s, %s, %s)', (ID, Username, Password, User_catecory, Phone_number,)) 
-        # db.commit()
-        
         # Check email exists
         user = User(**request.form)
         # sqlalchemy db
         db.session.add(user)
         db.session.commit()
-        
-
 
         return render_template( 'accounts/register.html', 
                                 msg='User created please <a href="/login">login</a>', 

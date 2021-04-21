@@ -54,6 +54,7 @@ def index2():
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
+
 @blueprint.route('/jan_apply/', methods=['GET', 'POST'])
 def index2_1_1():
     db = pymysql.connect(**config)
