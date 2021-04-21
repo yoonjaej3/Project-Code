@@ -12,11 +12,12 @@ import pymysql
 
 config = {
     'host': '127.0.0.1',
-    'port': 3306,
+    'port': 13306,
     'user': 'root',
     'database': 'mydb',
     'charset': 'utf8'
 }
+
 
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
@@ -168,13 +169,7 @@ def order_post():
 
     try:
         with conn.cursor() as cursor:
-            sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
-            cursor.execute(sql, [json_data['phone_number']])
-
-        conn.commit()
-
-        with conn.cursor() as cursor:
-            sql = "UPDATE orders SET requests=%s WHERE order_id=3"
+            sql = "UPDATE orders SET requests=%s WHERE order_id=2"
             cursor.execute(sql, [json_data['request_text']])
 
         conn.commit()
@@ -193,26 +188,31 @@ def credit_get():
     try:
         with conn.cursor() as cursor:
             sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                        ON a.store_id = b.store_id WHERE a.user_id = 1'''
+                        ON a.store_id = b.store_id WHERE a.user_no = 2'''
             cursor.execute(sql)
 
         store_data = cursor.fetchall()
 
         with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE user_id=1"
+            sql = "SELECT total_price FROM orders WHERE user_no=2"
             cursor.execute(sql)
 
         price_data = cursor.fetchall()
 
+        with conn.cursor() as cursor:
+            sql = '''SELECT order_state FROM orders WHERE order_id=2'''
+            cursor.execute(sql)
+
+        order_state = cursor.fetchall()
+
     finally:
         data_list = []
-        for i, j in zip(store_data, price_data):
-            data_list.append(i + j)
+        for i, j, k in zip(store_data, price_data, order_state):
+            data_list.append(i + j + k)
 
         conn.close()
 
     return render_template('jhj_credit.html', data_list=data_list)
-
 
 
 # <<<------------현주_2-------------->>>
@@ -253,7 +253,7 @@ def get_cartlist():
     db = pymysql.connect(**config)
 
     cur = db.cursor()
-    sql = '''select menu_name, food_price, food_qty from order_detail where order_id=1'''
+    sql = '''select menu_name, food_price, food_qty from order_detail where order_no=1'''
 
     cur.execute(sql)
     data_list = cur.fetchall()
