@@ -16,8 +16,9 @@ config = {
     'host': '127.0.0.1',
     'port': 13306,
     'user': 'root',
-    'password': '1234',
-    'database': 'mydb'
+    'password':'root0127:)',
+    'database': 'mydb',
+    'charset': 'utf8'
 }
 
 
@@ -40,13 +41,12 @@ def index():
 
 
 # <<<------------연옥-------------->>>
-@blueprint.route('/jan_festival_using')
-@login_required
+@blueprint.route('/admin_index')
 def index2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from festival, organization"
+    sql = "SELECT * from festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
@@ -54,25 +54,21 @@ def index2():
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
-
-@blueprint.route('/jan_apply', methods=['GET', 'POST'])
-
-@login_required
-def index2_1():
+@blueprint.route('/jan_apply/', methods=['GET', 'POST'])
+def index2_1_1():
     db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from organization, festival"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-
-    return render_template('jan_apply.html',
-                           segment='index2_1',
-                           data_list=data_list)
+    c = db.cursor()
 
 
-@blueprint.route('/jan_festival', methods=['GET', 'POST'])
-@login_required
+    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
+    c.execute(sql)
+    
+    data_list = c.fetchall()
+    
+    return jsonify(result="success", result2=data_list)
+
+
+@blueprint.route('/jan_festival')
 def index2_2():
 
     db = pymysql.connect(**config)
