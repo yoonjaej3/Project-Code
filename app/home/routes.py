@@ -40,55 +40,32 @@ def js_login():
 
 
 # <<<------------연옥-------------->>>
-@blueprint.route('/jan_festival_using')
-@login_required
+@blueprint.route('/admin_index')
 def index2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from festival, organization"
+    sql = "SELECT * from festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
-#############실험실###################
-# @blueprint.route('/jan_apply')
-# @login_required
-# def index2_1():
-
-#     db = pymysql.connect(**config)
-#     cur = db.cursor()
-#     sql = "SELECT * from festival, organization"
-#     cur.execute(sql)
-
-#     data_list = cur.fetchall()
-    
-#     return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
-#############여기까지 실험하고 지우기#############
-
-@blueprint.route('/jan_apply', methods=['GET', 'POST'])
-@login_required
-def index2_1():
+@blueprint.route('/jan_apply/', methods=['GET', 'POST'])
+def index2_1_1():
     db = pymysql.connect(**config)
-    cur = db.cursor()
-    data = request.get_json()
+    c = db.cursor()
 
-    print(type(data))
-    print(data)
-    print("request: ", data)
+    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
+    c.execute(sql)
     
-    sql = "insert into organization (company_name, manager_name, manager_contact) values (%s, %s, %s);"
-    cur.execute(sql, [data['holder'], data['manager_name'], data['manager_contact']])
+    data_list = c.fetchall()
 
-    db.commit()
-    db.close()
-    # data_list = cur.fetchall()
-    return jsonify(result="success", result2=data)
+    return jsonify(result="success", result2=data_list)
+
 
 @blueprint.route('/jan_festival')
-@login_required
 def index2_2():
 
     db = pymysql.connect(**config)
