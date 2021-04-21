@@ -7,10 +7,7 @@ flask_sqlalchemy==2.*
 email_validator
 python-decouple
 gunicorn
-authlib>=0.14.1
-requests
-python-dotenv
-six
+kafka-python
 
 wtforms~=2.3.3
 sqlalchemy~=1.4.5

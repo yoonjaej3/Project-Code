@@ -1,57 +1,118 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} 주문하기 {% endblock title %}
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
 
-  <div class="header bg-primary pb-6">
-    <div class="container-fluid">
-      <div class="header-body">
-        <div class="row align-items-center py-4">
-          <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">Tables</h6>
-            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
-              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                <li class="breadcrumb-item"><a href="#">Tables</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Tables</li>
-              </ol>
-            </nav>
-          </div>
-          <div class="col-lg-6 col-5 text-right">
-            <a href="#" class="btn btn-sm btn-neutral">New</a>
-            <a href="#" class="btn btn-sm btn-neutral">Filters</a>
+<head>
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+<div>
+  <div>
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="mb-0">판매자 정보</h3>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  
-  <!-- Page content -->
-  <div class="container-fluid mt--6">
-    <div class="row">
-      <div class="col">
-        <div class="card">
-          <!-- Card header -->
-          <div class="card-header border-0">
-            <h3 class="mb-0">주문 하기</h3>
-          </div>
-          <!-- Light table -->
-          <div class="table-responsive">
-            <table class="table">
-              
-            </table>
-          </div>
-        </div>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">순서</th>
+              <th scope="col">가게 이름</th>
+              <th scope="col">설명</th>
+              <th scope="col">핸드폰 번호</th>
+              <th scope="col">종류</th>
+              <th scope="col">사업자 번호</th>
+              <th scope="col">구역</th>
+              <th scope="col">등록 시간</th>
+              <th scope="col">삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td id="store_id" class="store_id">{{ datas[0] }}</td>
+              <td>
+                {{ datas[2] }}
+              </td>
+              <td>
+                {{ datas[3] }}
+              </td>
+              <td>
+                {{ datas[4] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                {{ datas[6] }}
+              </td>
+              <td>
+                {{ datas[7] }}
+              </td>
+              <td>
+                {{ datas[8] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-
-
-    {% include "includes/footer.html" %}
-
   </div>
+
+</div>
+
+{% include "includes/footer.html" %}
+
+</div>
 
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+<script>
+
+  $("[id^=execute]").click(function () {
+
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[0]
+    var store_id = cellIndex.firstChild.data
+
+    var postdata = {
+      'store_id': store_id
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/myajax_store_delete',
+      data: JSON.stringify(postdata),
+      dataType: 'JSON',
+      contentType: "application/json",
+      success: function (data) {
+        alert("성공");
+        window.location = 'jyj_seller_info'
+      },
+      error: function (request, status, error) {
+        alert(error);
+        console.log(postdata);
+      }
+    })
+  })
+</script>
+{% endblock javascripts %}

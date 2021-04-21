@@ -83,7 +83,7 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': 'mysql',
+    'password': 'root0127:)',
     'database': 'mydb',
     'charset': 'utf8'
 }
@@ -113,7 +113,7 @@ def index_init():
     
     return render_template('accounts/festival_init.html', segment='index_init', data_list=data_list)
 
-
+## Login & Registration
 # app2 -> blueprint
 @blueprint.route('/login_user')
 def user_login():
@@ -139,6 +139,7 @@ def callback_handling():
     }
     return redirect('/dashboard')
 
+
 # app2 -> blueprint
 @blueprint.route('/dashboard')
 @requires_auth
@@ -146,7 +147,6 @@ def dashboard():
     return render_template('accounts/dashboard.html',
                            userinfo=session[constants.PROFILE_KEY],
                            userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD], indent=4))
-
 
 
 @blueprint.route('/register', methods=['GET', 'POST'])
@@ -190,18 +190,20 @@ def auth_logout():
 
 
 ## Errors
-
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return render_template('page-403.html'), 403
+
 
 @blueprint.errorhandler(403)
 def access_forbidden(error):
     return render_template('page-403.html'), 403
 
+
 @blueprint.errorhandler(404)
 def not_found_error(error):
     return render_template('page-404.html'), 404
+
 
 @blueprint.errorhandler(500)
 def internal_error(error):
