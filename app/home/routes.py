@@ -8,20 +8,22 @@ from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound
 import flask_restful
 import pymysql
+import json
+from datetime import datetime
 
 
 config = {
     'host': '127.0.0.1',
     'port': 13306,
     'user': 'root',
-    'database': 'mydb',
-    'charset': 'utf8'
+    'password': '1234',
+    'database': 'mydb'
 }
+
 
 
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
-@login_required
 def index():
 
     db = pymysql.connect(**config)
@@ -30,8 +32,11 @@ def index():
     cur.execute(sql)
 
     data_list = cur.fetchall()
-    
-    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
+
+    return render_template('jaesung_festivalList.html',
+                           segment='index',
+                           data_list=data_list)
+
 
 
 # <<<------------연옥-------------->>>
@@ -45,6 +50,7 @@ def index2():
     cur.execute(sql)
 
     data_list = cur.fetchall()
+
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
@@ -59,8 +65,10 @@ def index2_1():
     cur.execute(sql)
 
     data_list = cur.fetchall()
-    
-    return render_template('jan_apply.html', segment='index2_1', data_list=data_list)
+
+    return render_template('jan_apply.html',
+                           segment='index2_1',
+                           data_list=data_list)
 
 
 @blueprint.route('/jan_festival', methods=['GET', 'POST'])
@@ -80,7 +88,6 @@ def index2_2():
 # <<<------------현주_1-------------->>>
 
 @blueprint.route('/juthor_dash')
-@login_required
 def index3():
 
     db = pymysql.connect(**config)
@@ -89,8 +96,10 @@ def index3():
     cur.execute(sql)
 
     data_list = cur.fetchall()
-    
-    return render_template('juthor_dash.html', segment='index3', data_list=data_list)
+
+    return render_template('juthor_dash.html',
+                           segment='index3',
+                           data_list=data_list)
 
 
 @blueprint.route('/juthor_category')
@@ -157,7 +166,6 @@ def order_get():
 
 
 @blueprint.route('/order_post', methods=['POST'])
-@login_required
 def order_post():
     json_data = request.get_json()
     conn = pymysql.connect(**config)
@@ -250,31 +258,237 @@ def get_cartlist():
     cur = db.cursor()
     sql = '''select menu_name, food_price, food_qty from order_detail where order_no=1'''
 
+
+@blueprint.route('/jyj_seller_info')
+def store_info():
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT * from store"
     cur.execute(sql)
+
     data_list = cur.fetchall()
-    return data_list
+
+    return render_template('jyj_seller_info.html', data_list=data_list)
+
+
+@blueprint.route('/jyj_order_detail')
+def order_detail():
+
+    #  - 구매자 이름(users.user_name) one
+    #  - 구매자 연락처(users.phone_number) one
+    #  - 음식 이름(menu.menu_name)  two 3.store_id
+    #  - 주문 시간(orders.order_time) three 1.user_id
+    #  - 총 가격(orders.total_price) three 1.user_id
+    #  - 음식 수량(orders.total_qty) three 1.user_id
+    #  - 결제 종류(default = Credit Card)(orders.payment) three 1.user_id
+    #  - 상태 (버튼 클릭시 상태 변경)(order_detail.state) four 3.order_id
+    #  - 요청 사항(orders.requests) three 1.user_id
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    data_list_one = ()
+    data_list_two = ()
+    data_list_four = ()
+    data_list_three = ()
+    user_no_list = []
+    sql = "SELECT user_no,user_id,user_name,phone_number from users"
+    cur.execute(sql)
+    data_list_one = cur.fetchall()
+
+    for i in data_list_one:
+        user_no_list.append(i[0])
+
+    for i in user_no_list:
+        sql = '''SELECT A.user_name,A.phone_number,B.store_id,B.order_id,B.order_time,B.total_price,B.total_qty,B.payment,B.requests 
+        from users A INNER JOIN orders B
+        ON A.user_no=B.user_no
+        where B.user_no=%s
+        '''
+        cur.execute(sql, i)
+        data_list_two += cur.fetchall()  #1~4
+
+    for i in data_list_two:
+        sql = "SELECT menu_name from menu where store_id=%s"
+        cur.execute(sql, i[2])
+        data_list_three += cur.fetchall()
+
+    for i in data_list_two:
+        sql = "SELECT order_state,order_id from orders where order_id=%s"
+        cur.execute(sql, i[3])
+        data_list_four += cur.fetchall()  #2~5
+
+    data_list = []
+    for i, j, k in zip(data_list_two, data_list_three, data_list_four):
+        data_list.append(i + j + k)
+
+    return render_template('jyj_order_detail.html', data_list=data_list)
+
+
+@blueprint.route('/jyj_seller')
+def jyj_seller():
+
+    #  - 구매자 이름(users.user_name) one
+    #  - 구매자 연락처(users.phone_number) one
+    #  - 음식 이름(menu.menu_name)  two 3.store_id
+    #  - 주문 시간(orders.order_time) three 1.user_id
+    #  - 총 가격(orders.total_price) three 1.user_id
+    #  - 음식 수량(orders.total_qty) three 1.user_id
+    #  - 결제 종류(default = Credit Card)(orders.payment) three 1.user_id
+    #  - 상태 (버튼 클릭시 상태 변경)(order_detail.state) four 3.order_id
+    #  - 요청 사항(orders.requests) three 1.user_id
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+
+    data_list_two = ()
+
+    sql = '''SELECT A.menu_name,B.total_price,B.total_qty
+    from menu A INNER JOIN orders B
+    ON A.store_id=B.store_id
+    '''
+    cur.execute(sql)
+    data_list_two += cur.fetchall()  #1~4
+    price = {}
+    qty = {}
+    menu_list = []
+    for i in data_list_two:
+        if (price.get(i[0]) == None):
+            price[i[0]] = i[1]
+            menu_list.append(i[0])
+        else:
+            price[i[0]] += i[1]
+
+    for i in data_list_two:
+        if (qty.get(i[0]) == None):
+            qty[i[0]] = i[2]
+        else:
+            qty[i[0]] += i[2]
+
+    data_list = []
+
+    for i in menu_list:
+        data_list.append([i, price[i], qty[i]])
+
+    return render_template('jyj_seller.html', data_list=data_list)
+
+
+@blueprint.route('/jyj_seller_apply')
+def store_save():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = "SELECT festival_name from festival"
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    return render_template('jyj_seller_apply.html', data_list=data_list)
+
+
+@blueprint.route('/myajax_store_insert', methods=['POST'])
+def myajax():
+
+    json_data = request.get_json()
+    db = pymysql.connect(host="localhost",
+                         user="root",
+                         password="1234",
+                         db="mydb",
+                         charset="utf8")
+    cur = db.cursor()
+    data_festival_id = {}
+    sql = "SELECT festival_id from festival where festival_name=%s"
+    cur.execute(sql, json_data['festival_name'])
+    data_festival_id = cur.fetchall()
+    sql = '''Insert into store(festival_id,store_name,store_description ,contact_number,category,license_number,location_number,created_at)
+    values(%s,%s,%s,%s,%s,%s,%s,%s);
+    '''
+
+    json_data['created__at'] = str(datetime.today())
+    cur.execute(sql, [
+        data_festival_id, json_data['store_name'],
+        json_data['store_description'], json_data['contact_number'],
+        json_data['category'], json_data['license_number'],
+        json_data['location_number'], json_data['created__at']
+    ])
+
+    db.commit()
+
+    return jsonify(result="success", result2=json_data)
+
+
+@blueprint.route('/myajax_store_delete', methods=['POST'])
+def myajax_delete():
+
+    json_data = request.get_json()
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+
+    sql = '''Delete from orders where store_id=%s
+    '''
+    cur.execute(sql, [json_data['store_id']])
+    sql = '''Delete from menu where store_id=%s
+    '''
+    cur.execute(sql, [json_data['store_id']])
+    sql = '''Delete from store where store_id=%s
+    '''
+    cur.execute(sql, [json_data['store_id']])
+
+    db.commit()
+
+    return jsonify(result="success", result2=json_data)
+
+
+@blueprint.route('/myajax_state_update', methods=['POST'])
+def myajax_state_update():
+
+    json_data = request.get_json()
+    # print(json_data)
+    db = pymysql.connect(**config)
+
+    data_list_one = {}
+    cur = db.cursor()
+    sql = "SELECT order_state from orders"
+    cur.execute(sql)
+    data_list_one = cur.fetchall()
+    for i in data_list_one:
+        if (i == '주문중', ):
+            print("주문완료")
+            sql = '''Update orders SET order_state=%s
+            where order_id=%s
+            '''
+            cur.execute(sql, ['주문완료', json_data['order_id']])
+            db.commit()
+    # cur.execute(sql, [json_data['order_state']])
+    # if(json_data['order_state']=='주문중')
+    #     json_data['order_state']=="주문완료"
+    # sql = '''Update orders SET order_state=%s
+    # '''
+    # cur.execute(sql, [json_data['order_state']])
+
+    # print(json_data['order_id'])
+    # db.commit()
+
+    return jsonify(result="success", result2=json_data)
+
 
   
 @blueprint.route('/<template>')
-@login_required
 def route_template(template):
 
     try:
 
-        if not template.endswith( '.html' ):
+        if not template.endswith('.html'):
             template += '.html'
 
         # Detect the current page
-        segment = get_segment( request )
+        segment = get_segment(request)
 
         # Serve the file (if exists) from app/templates/FILE.html
-        return render_template( template, segment=segment )
+        return render_template(template, segment=segment)
 
     except TemplateNotFound:
         return render_template('page-404.html'), 404
-    
+
     except:
         return render_template('page-500.html'), 500
+
 
 
 # Helper - Extract current page name from request 
@@ -287,7 +501,8 @@ def get_segment(request):
         if segment == '':
             segment = 'index'
 
-        return segment    
+        return segment
 
     except:
+
         return None  
