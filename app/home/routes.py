@@ -14,9 +14,9 @@ from datetime import datetime
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
-    'password':'root0127:)',
+    'password':'mysql',
     'database': 'mydb',
     'charset': 'utf8'
 }
