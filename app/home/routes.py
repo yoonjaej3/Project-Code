@@ -14,13 +14,13 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
+    'password': 'mysql',
     'database': 'mydb',
     'charset': 'utf8'
 }
 
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
-@login_required
 def index():
 
     db = pymysql.connect(**config)
@@ -35,7 +35,6 @@ def index():
 
 # <<<------------연옥-------------->>>
 @blueprint.route('/jan_festival_using')
-@login_required
 def index2():
 
     db = pymysql.connect(**config)
@@ -50,7 +49,6 @@ def index2():
 
 @blueprint.route('/jan_apply', methods=['GET', 'POST'])
 
-@login_required
 def index2_1():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -63,7 +61,6 @@ def index2_1():
 
 
 @blueprint.route('/jan_festival', methods=['GET', 'POST'])
-@login_required
 def index2_2():
 
     db = pymysql.connect(**config)

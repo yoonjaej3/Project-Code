@@ -83,6 +83,7 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
+    'password': 'mysql',
     'database': 'mydb',
     'charset': 'utf8'
 }
@@ -112,45 +113,6 @@ def index_init():
     
     return render_template('accounts/festival_init.html', segment='index_init', data_list=data_list)
 
-
-## Login & Registration
-
-# @blueprint.route('/login', methods=['GET', 'POST'])
-# def login():
-#     login_form = LoginForm(request.form)
-#     if 'login' in request.form:
-        
-#         # read form data
-#         username = request.form['username']
-#         password = request.form['password']
-
-#         # Locate user
-#         user = User.query.filter_by(username=username).first()
-#         # db = pymysql.connect(**config)
-#         # cur = db.cursor()
-#         # cur.execute('SELECT * FROM users WHERE ID = %s AND Password = %s', (ID, Password,))
-
-#         # Fetch one record and return result
-#         # user = cur.fetchone()
-#         # if user:
-#         #     session['loggedin'] = True
-#         #     session['ID'] = user['ID']
-#         #     return redirect(url_for('base_blueprint.login'))
-            
-
-#         # Check the password
-#         if user and verify_pass( password, user.password):
-
-#             login_user(user)
-#             return redirect(url_for('base_blueprint.login'))
-
-#         # Something (user or pass) is not ok
-#         return render_template( 'accounts/login.html', msg='Wrong user or password', form=login_form)
-
-#     if not current_user.is_authenticated:
-#         return render_template( 'accounts/login.html',
-#                                 form=login_form)
-#     return redirect(url_for('home_blueprint.index'))
 
 # app2 -> blueprint
 @blueprint.route('/login_user')
@@ -193,39 +155,23 @@ def register():
     create_account_form = CreateAccountForm(request.form)
     if 'register' in request.form:
 
-        # ID            = request.form['ID']
         username      = request.form['username']
         email         = request.form['email']
-        # Password      = request.form['Password']
-        # User_catecory = request.form['User_category']
-        # Phone_number  = request.form['Phone_number']
-    
-
+        
         # Check usename exists
         user = User.query.filter_by(username=username).first()
         
-        # Check username exists
-        # db = pymysql.connect(**config)
-        # cur = db.cursor()
-        # cur.execute('SELECT * FROM users WHERE ID = %s', (Username,))
-        # user = cur.fetchone()
         if user:
             return render_template( 'accounts/register.html', 
                                     msg='Username already registered',
                                     success=False,
                                     form=create_account_form)
 
-        # else we can create the user
-        # cur.execute('INSERT INTO users VALUES (%s, %s, %s, %s, %s)', (ID, Username, Password, User_catecory, Phone_number,)) 
-        # db.commit()
-        
         # Check email exists
         user = User(**request.form)
         # sqlalchemy db
         db.session.add(user)
         db.session.commit()
-        
-
 
         return render_template( 'accounts/register.html', 
                                 msg='User created please <a href="/login">login</a>', 
@@ -235,17 +181,11 @@ def register():
     else:
         return render_template( 'accounts/register.html', form=create_account_form)
 
-# @blueprint.route('/logout')
-# def logout():
-#     logout_user()
-#     return redirect(url_for('base_blueprint.login'))
 
 # app2 -> blueprint
 @blueprint.route('/logout_auth')
 def auth_logout():
     session.clear()
-    # params = {'returnTo': url_for('home', _external=True), 'client_id': AUTH0_CLIENT_ID}
-    # return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
     return redirect(url_for('base_blueprint.index_init'))
 
 
