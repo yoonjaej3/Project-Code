@@ -22,7 +22,6 @@ config = {
 
 
 @blueprint.route('/jaesung_festivalList')
-@login_required
 def index():
 
     db = pymysql.connect(**config)
@@ -38,7 +37,6 @@ def index():
 
 
 @blueprint.route('/jan_festival')
-@login_required
 def index2():
 
     db = pymysql.connect(**config)
@@ -54,7 +52,6 @@ def index2():
 
 
 @blueprint.route('/jan_apply')
-@login_required
 def index2_1():
 
     db = pymysql.connect(**config)
@@ -70,7 +67,6 @@ def index2_1():
 
 
 @blueprint.route('/juthor_dash')
-@login_required
 def index3():
 
     db = pymysql.connect(**config)
@@ -86,7 +82,6 @@ def index3():
 
 
 @blueprint.route('/jhj_order')
-@login_required
 def order():
     conn = pymysql.connect(**config)
     cursor = conn.cursor()
@@ -101,7 +96,6 @@ def order():
 
 
 @blueprint.route('/order_post', methods=['POST'])
-@login_required
 def order_post():
     json_data = request.get_json()
 
@@ -132,7 +126,6 @@ def order_post():
 
 
 @blueprint.route('/jyj_seller_info')
-@login_required
 def store_info():
 
     db = pymysql.connect(**config)
@@ -146,7 +139,6 @@ def store_info():
 
 
 @blueprint.route('/jyj_order_detail')
-@login_required
 def order_detail():
 
     #  - 구매자 이름(users.user_name) one
@@ -199,7 +191,6 @@ def order_detail():
 
 
 @blueprint.route('/jyj_seller')
-@login_required
 def jyj_seller():
 
     #  - 구매자 이름(users.user_name) one
@@ -247,7 +238,6 @@ def jyj_seller():
 
 
 @blueprint.route('/jyj_seller_apply')
-@login_required
 def store_save():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -259,7 +249,6 @@ def store_save():
 
 
 @blueprint.route('/myajax_store_insert', methods=['POST'])
-@login_required
 def myajax():
 
     json_data = request.get_json()
@@ -291,7 +280,6 @@ def myajax():
 
 
 @blueprint.route('/myajax_store_delete', methods=['POST'])
-@login_required
 def myajax_delete():
 
     json_data = request.get_json()
@@ -314,7 +302,6 @@ def myajax_delete():
 
 
 @blueprint.route('/myajax_state_update', methods=['POST'])
-@login_required
 def myajax_state_update():
 
     json_data = request.get_json()
@@ -348,7 +335,6 @@ def myajax_state_update():
 
 
 @blueprint.route('/<template>')
-@login_required
 def route_template(template):
 
     try:
