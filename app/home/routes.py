@@ -14,7 +14,7 @@ from datetime import datetime
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
     'password':'root0127:)',
     'database': 'mydb',
@@ -66,6 +66,7 @@ def index2_1_1():
     data_list = c.fetchall()
     
     return jsonify(result="success", result2=data_list)
+    # return render_template('jan_apply.html', segment='index2_1_1', data_list=data_list)
 
 
 @blueprint.route('/jan_festival')
