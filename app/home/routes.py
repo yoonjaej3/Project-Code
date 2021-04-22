@@ -14,10 +14,11 @@ from datetime import datetime
 
 config = {
     'host': '127.0.0.1',
-    'port': 13306,
+    'port': 3306,
     'user': 'root',
-    'password': '1234',
-    'database': 'mydb'
+    'password':'mysql',
+    'database': 'mydb',
+    'charset': 'utf8'
 }
 
 
@@ -40,13 +41,12 @@ def index():
 
 
 # <<<------------연옥-------------->>>
-@blueprint.route('/jan_festival_using')
-@login_required
+@blueprint.route('/admin_index')
 def index2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from festival, organization"
+    sql = "SELECT * from festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
@@ -54,25 +54,21 @@ def index2():
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
-
-@blueprint.route('/jan_apply', methods=['GET', 'POST'])
-
-@login_required
-def index2_1():
+@blueprint.route('/jan_apply/', methods=['GET', 'POST'])
+def index2_1_1():
     db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from organization, festival"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-
-    return render_template('jan_apply.html',
-                           segment='index2_1',
-                           data_list=data_list)
+    c = db.cursor()
 
 
-@blueprint.route('/jan_festival', methods=['GET', 'POST'])
-@login_required
+    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
+    c.execute(sql)
+    
+    data_list = c.fetchall()
+    
+    return jsonify(result="success", result2=data_list)
+
+
+@blueprint.route('/jan_festival')
 def index2_2():
 
     db = pymysql.connect(**config)
@@ -103,7 +99,7 @@ def index3():
 
 
 @blueprint.route('/juthor_category')
-@login_required
+# @login_required
 def category():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -117,7 +113,7 @@ def category():
 
 
 @blueprint.route('/juthor_storelist')
-@login_required
+# @login_required
 def store_list():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -131,7 +127,7 @@ def store_list():
 
 
 @blueprint.route('/juthor_storemenulist')
-@login_required
+# @login_required
 def store_menulist():
     data_list = get_menu()
     return render_template('juthor_storemenulist.html', segment='storemenulist', data_list=data_list)
@@ -149,9 +145,36 @@ def get_menu():
     return data_list
 
 
+@blueprint.route('/insert', methods=['POST'])
+# @login_required
+def insert():
+    data = request.get_json()
+
+    print(type(data))
+    print(data, "asdf")
+    print("request: ", request.get_json())
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+
+    sum = 0
+    cnt = 0
+    # menu_id꺼내서 더하기
+    for d in data['menu']:
+        sum += cur.execute('select menu_price from menu where menu_id=%s', d)
+        cnt+=1
+    
+    sql = "insert into orders (user_no, store_id, total_qty, total_price) values(1, 3, %s, %s)"
+    cur.execute(sql, (cnt, sum))
+
+    db.commit()
+    db.close()
+    # return "hello"
+    return render_template('juthor_cart.html', segment='cartlist')
+
 # <<<------------현재-------------->>>
 @blueprint.route('/jhj_order')
-@login_required
+# @login_required
 def order_get():
     conn = pymysql.connect(**config)
     cursor = conn.cursor()
@@ -184,7 +207,7 @@ def order_post():
 
 
 @blueprint.route('/jhj_credit')
-@login_required
+# @login_required
 def credit_get():
     conn = pymysql.connect(**config)
 
@@ -218,37 +241,14 @@ def credit_get():
     return render_template('jhj_credit.html', data_list=data_list)
 
 
-# <<<------------현주_2-------------->>>
-@blueprint.route('/insert', methods=['POST'])
-@login_required
-def insert():
-    data = request.get_json()
 
-    print(type(data))
-    print(data, "asdf")
-    print("request: ", request.get_json())
-
-# data 에서 받은 값들이 문자열로 내가 하나하나 다룰수있음을 확신하는 코드로 확인
-
-# DB algo
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-
-    for d in data['menu']:
-        sql = "insert into order_detail (order_id, menu_name, food_qty, food_price)\
-               select 1, %s, 1, menu_price from menu where menu.menu_name=%s"
-        cur.execute(sql, (d, d))
-
-    db.commit()
-    db.close()
-    # return "hello"
-    return render_template('juthor_cart.html', segment='cartlist')
 
 
 @blueprint.route('/juthor_cart')
-@login_required
+# @login_required
 def store_cartlist():
     data_list=get_cartlist()
+    
     return render_template('juthor_cart.html', segment='cartlist', data_list=data_list)
 
 
@@ -256,7 +256,41 @@ def get_cartlist():
     db = pymysql.connect(**config)
 
     cur = db.cursor()
-    sql = '''select menu_name, food_price, food_qty from order_detail where order_no=1'''
+    sql = '''select d.order_detail_id, m.menu_id, m.menu_name, d.food_price, d.food_qty from menu m, orders o, order_detail d\
+            where d.order_id=o.order_id'''
+    
+    cur.execute(sql)
+    db.commit()
+    db.close()
+    return (";")
+
+@blueprint.route('/order_insert', methods=['POST'])
+# @login_required
+def order_insert():
+    data = request.get_json()
+
+    print(type(data))
+    print(data, "asdf")
+    # print("request: ", request.get_json())
+    
+# data 에서 받은 값들이 문자열로 내가 하나하나 다룰수있음을 확신하는 코드로 확인
+
+# DB algo
+    db = pymysql.connect(host="localhost", user="root", password="mysql",
+                 db="mydb", charset="utf8")
+    cur = db.cursor()
+
+    for d in data['order']:
+        for key, value in d.items():
+            sql = "update order_detail SET food_qty=%s WHERE order_detail_id=%s"
+            print(value, key)
+            cur.execute(sql, (value, key))
+    
+    db.commit()
+    db.close()
+
+    return "hello"
+    # return render_template('juthor_cart.html', segment='cartlist')
 
 
 @blueprint.route('/jyj_seller_info')
