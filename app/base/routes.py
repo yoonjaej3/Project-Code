@@ -73,7 +73,7 @@ def requires_auth(f):
         if constants.PROFILE_KEY not in session:
             return redirect('/login_user')
         return f(*args, **kwargs)
-
+    
     return decorated
 
 
@@ -154,15 +154,15 @@ def admin_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    
+    admin = '관리자'
+
     if not check:
-        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('관리자', %s, %s, '')'''
-        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
+        cur.execute(sql, [admin, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
         is_admin = True
     else:
         is_admin = False
-
 
     return render_template('accounts/register_admin.html', is_admin=is_admin, userinfo=session[constants.PROFILE_KEY])
     
@@ -175,11 +175,13 @@ def org_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    
+    manager = '주최자'
+
     if not check:
-        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('주최자', %s, %s, '')'''
-        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
-        db.commit()
+        sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
+        cur.execute(sql, [manager, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
+        db.commit()        
+        
         is_org = True
     else:
         is_org = False
@@ -195,10 +197,11 @@ def seller_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    
+    seller = '판매자'
+
     if not check:
-        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('판매자', %s, %s, '')'''
-        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
+        cur.execute(sql, [seller, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
         is_seller = True
     else:
@@ -215,10 +218,11 @@ def buyer_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    
+    user = '고객'
+
     if not check:
-        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('구매자', %s, %s, '')'''
-        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
+        cur.execute(sql, [user, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
         is_buyer = True
     else:

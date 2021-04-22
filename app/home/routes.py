@@ -59,7 +59,7 @@ def index2():
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
 
-@blueprint.route('/jan_apply/', methods=['GET', 'POST'])
+@blueprint.route('/jan_apply', methods=['GET', 'POST'])
 def index2_1_1():
     db = pymysql.connect(**config)
     c = db.cursor()
@@ -151,36 +151,137 @@ def get_menu():
 
 
 # <<<------------현재-------------->>>
+# class Order(flask_restful.Resource):
+#     def __init__(self):
+#         self.conn = pymysql.connect(**config)
+#         self.cursor = self.conn.cursor()
+
+#     @blueprint.route('/jhj_order')
+#     @requires_auth
+#     def order_get(self, order_id):
+#         sql = '''SELECT total_price FROM orders WHERE order_id=%s'''
+
+#         self.cursor.execute(sql, [order_id])
+
+#         data_list = self.cursor.fetchall()
+
+#         return render_template('jhj_order.html', data_list=data_list)
+
+#     @blueprint.route('/order_post', methods=['POST'])
+#     @requires_auth
+#     def order_post(self, user_no, order_id):
+#         json_data = request.get_json()
+
+#         try:
+#             with self.cursor:
+#                 sql = "UPDATE orders SET requests=%s WHERE order_id=%s"
+#                 self.cursor.execute(sql, [json_data['request_text'], order_id])
+
+#             self.conn.commit()
+
+#             with self.cursor:
+#                 sql = "UPDATE users SET phone_number=%s WHERE user_no=%s"
+#                 self.cursor.execute(sql, [json_data['phone_number'], user_no])
+
+#             self.conn.commit()
+
+#         finally:
+#             self.conn.close()
+
+#         return jsonify(result="success", result2=json_data)
+
+#     @blueprint.route('/jhj_credit')
+#     @requires_auth
+#     def credit_get(self, user_no, order_id):
+
+#         try:
+#             with self.cursor:
+#                 sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
+#                             ON a.store_id = b.store_id WHERE a.user_no=%s'''
+#                 self.cursor.execute(sql, [user_no])
+
+#             store_data = self.cursor.fetchall()
+
+#             with self.cursor:
+#                 sql = "SELECT total_price FROM orders WHERE user_no=%s"
+#                 self.cursor.execute(sql, [user_no])
+
+#             price_data = self.cursor.fetchall()
+
+#             with self.cursor:
+#                 sql = '''SELECT order_state FROM orders WHERE order_id=%s'''
+#                 self.cursor.execute(sql, [order_id])
+
+#             order_state = self.cursor.fetchall()
+
+#         finally:
+#             data_list = []
+#             for i, j, k in zip(store_data, price_data, order_state):
+#                 data_list.append(i + j + k)
+
+#             self.conn.close()
+
+#         return render_template('jhj_credit.html', data_list=data_list)
+
+def get_id():
+    conn = pymysql.connect(**config)
+
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT user_no FROM users WHERE email = %s"
+            cursor.execute(sql, [session[constants.JWT_PAYLOAD]['email']])
+        
+        user_no = cursor.fetchone()
+
+        with conn.cursor() as cursor:
+            sql = "SELECT order_id FROM orders WHERE user_no=%s"
+            cursor.execute(sql, user_no)
+        
+        order_id = cursor.fetchone()
+
+    finally:
+        data_list = [user_no[0], order_id[0]]
+
+        conn.close()
+
+    return data_list
+
 @blueprint.route('/jhj_order')
-@login_required
+@requires_auth
 def order_get():
     conn = pymysql.connect(**config)
-    cursor = conn.cursor()
+    data = get_id()
 
-    sql = '''SELECT total_price FROM orders WHERE order_id=2'''
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT total_price FROM orders WHERE order_id=%s"
+            cursor.execute(sql, [data[1]])
 
-    cursor.execute(sql)
+        data_list = cursor.fetchall()
 
-    data_list = cursor.fetchall()
+    finally:
+        conn.close()
 
     return render_template('jhj_order.html', data_list=data_list)
 
 
 @blueprint.route('/order_post', methods=['POST'])
+@requires_auth
 def order_post():
     json_data = request.get_json()
     conn = pymysql.connect(**config)
+    data = get_id()
 
     try:
         with conn.cursor() as cursor:
-            sql = "UPDATE orders SET requests=%s WHERE order_id=2"
-            cursor.execute(sql, [json_data['request_text']])
+            sql = "UPDATE orders SET requests=%s WHERE order_id=%s"
+            cursor.execute(sql, [json_data['request_text'], data[1]])
 
         conn.commit()
 
         with conn.cursor() as cursor:
-            sql = "UPDATE users SET phone_number=%s WHERE user_no=2"
-            cursor.execute(sql, [json_data['phone_number']])
+            sql = "UPDATE users SET phone_number=%s WHERE user_no=%s"
+            cursor.execute(sql, [json_data['phone_number'], data[0]])
 
         conn.commit()
 
@@ -191,27 +292,28 @@ def order_post():
 
 
 @blueprint.route('/jhj_credit')
-@login_required
+@requires_auth
 def credit_get():
     conn = pymysql.connect(**config)
+    data = get_id()
 
     try:
         with conn.cursor() as cursor:
             sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                        ON a.store_id = b.store_id WHERE a.user_no = 2'''
-            cursor.execute(sql)
+                        ON a.store_id = b.store_id WHERE a.user_no=%s'''
+            cursor.execute(sql, [data[0]])
 
         store_data = cursor.fetchall()
 
         with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE user_no=2"
-            cursor.execute(sql)
+            sql = "SELECT total_price FROM orders WHERE user_no=%s"
+            cursor.execute(sql, [data[0]])
 
         price_data = cursor.fetchall()
 
         with conn.cursor() as cursor:
-            sql = '''SELECT order_state FROM orders WHERE order_id=2'''
-            cursor.execute(sql)
+            sql = '''SELECT order_state FROM orders WHERE order_id=%s'''
+            cursor.execute(sql, [data[1]])
 
         order_state = cursor.fetchall()
 
@@ -227,7 +329,7 @@ def credit_get():
 
 # <<<------------현주_2-------------->>>
 @blueprint.route('/insert', methods=['POST'])
-@login_required
+@requires_auth
 def insert():
     data = request.get_json()
 
@@ -253,12 +355,13 @@ def insert():
 
 
 @blueprint.route('/juthor_cart')
-@login_required
+@requires_auth
 def store_cartlist():
     data_list=get_cartlist()
     return render_template('juthor_cart.html', segment='cartlist', data_list=data_list)
 
 
+@requires_auth
 def get_cartlist():
     db = pymysql.connect(**config)
 
@@ -267,6 +370,7 @@ def get_cartlist():
 
 
 @blueprint.route('/jyj_seller_info')
+@requires_auth
 def store_info():
 
     db = pymysql.connect(**config)
@@ -280,6 +384,7 @@ def store_info():
 
 
 @blueprint.route('/jyj_order_detail')
+@requires_auth
 def order_detail():
 
     #  - 구매자 이름(users.user_name) one
@@ -332,6 +437,7 @@ def order_detail():
 
 
 @blueprint.route('/jyj_seller')
+@requires_auth
 def jyj_seller():
 
     #  - 구매자 이름(users.user_name) one
@@ -379,6 +485,7 @@ def jyj_seller():
 
 
 @blueprint.route('/jyj_seller_apply')
+@requires_auth
 def store_save():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -390,6 +497,7 @@ def store_save():
 
 
 @blueprint.route('/myajax_store_insert', methods=['POST'])
+@requires_auth
 def myajax():
 
     json_data = request.get_json()
@@ -421,6 +529,7 @@ def myajax():
 
 
 @blueprint.route('/myajax_store_delete', methods=['POST'])
+@requires_auth
 def myajax_delete():
 
     json_data = request.get_json()
@@ -443,6 +552,7 @@ def myajax_delete():
 
 
 @blueprint.route('/myajax_state_update', methods=['POST'])
+@requires_auth
 def myajax_state_update():
 
     json_data = request.get_json()
