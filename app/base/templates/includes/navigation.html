@@ -198,7 +198,7 @@
               </span>
               <div class="media-body  ml-2  d-none d-lg-block">
                 <span class="mb-0 text-sm  font-weight-bold">
-                  {{ current_user.username }}
+                  {{ user_data }}님
                 </span>
               </div>
             </div>
@@ -212,7 +212,7 @@
               <span>My profile</span>
             </a>
             <div class="dropdown-divider"></div>
-            <a href="{{ url_for('base_blueprint.logout') }}" class="dropdown-item">
+            <a href="/logout_auth" class="dropdown-item">
               <i class="ni ni-user-run"></i>
               <span>Logout</span>
             </a>
