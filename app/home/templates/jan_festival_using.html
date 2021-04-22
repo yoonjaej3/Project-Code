@@ -1,140 +1,168 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} 관리자 메인 {% endblock title %}
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
 
-  <div class="header bg-primary pb-6">
-    <div class="container-fluid">
-      <div class="header-body">
-        <div class="row align-items-center py-4">
-          <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">주최기관 보기</h6>
-            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
-              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                <li class="breadcrumb-item"><a href="#">Tables</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Tables</li>
-              </ol>
-            </nav>
-          </div>
-          <div class="col-lg-6 col-5 text-right">
-            <a href="jan_apply.html" class="btn btn-sm btn-neutral">등록하기</a>
+<head>
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+<div>
+  <div>
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="mb-0">관리자 메인 리스트</h3>
           </div>
         </div>
+      </div>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+
+            <tr>
+              <h5 class="mb-0">주최기관 리스트</h5>
+              <th scope="col">주체기관 명</th>
+              <th scope="col">담당자</th>
+              <th scope="col">담당자 연락처</th>
+              <th scope="col">페스티벌 명</th>
+              <th scope="col">기간</th>
+              <th scope="col">장소</th>
+              <th scope="col">삭제</th>
+              <th scope="col-sm-6"><button type="button" class="btn btn-primary btn-sm" id="add"> + </button></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td style="display:none">
+                {{ datas[7] }}
+              </td>
+              <td>
+                {{ datas[2] }}
+              </td>
+              <td>
+                {{ datas[0] }}
+              </td>
+              <td>
+                {{ datas[1] }}
+              </td>
+              <td>
+                {{ datas[3] }}
+              </td>
+              <td>
+                {{ datas[4] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <br>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+            <tr>
+              <h5 class="mb-0">페스티벌 리스트</h5>
+              <th scope="col">페스티벌 명</th>
+              <th scope="col">기간</th>
+              <th scope="col">장소</th>
+              <th scope="col">URL</th>
+              <th scope="col">정보 조회 바로가기</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td>
+                {{ datas[3] }}
+              </td>
+              <td>
+                {{ datas[4] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                {{ datas[6] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm" id="go">바로가기</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-  
-  <!-- Page content -->
-  <div class="container-fluid mt--6">
-    <div class="row">
-      <div class="col">
-        <div class="card">
-          <!-- Card header -->
-          <div class="card-header border-0">
-            <h3 class="mb-0">주최기관 리스트</h3>
-          </div>
-          <!-- Light table -->
-          <div class="row">
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <!-- <a href="각 주최자 정보 페이지"></a> -->
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0"> 운영 페스티벌 갯수:  </h5>
-                      <span class="h2 font-weight-bold mb-0"> 주최기관명 삽입 </span>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 현재진행중 </span>
-                    <span class="text-nowrap">운영 기간 삽입</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">New users</h5>
-                      <span class="h2 font-weight-bold mb-0">2,356</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
-                        <i class="ni ni-chart-pie-35"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                    <span class="text-nowrap">Since last month</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Sales</h5>
-                      <span class="h2 font-weight-bold mb-0">924</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
-                        <i class="ni ni-money-coins"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                    <span class="text-nowrap">Since last month</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Performance</h5>
-                      <span class="h2 font-weight-bold mb-0">49,65%</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-info text-white rounded-circle shadow">
-                        <i class="ni ni-chart-bar-32"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                    <span class="text-nowrap">Since last month</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> 
-        </div>
-      </div>
-    </div>
 
+</div>
 
-    {% include "includes/footer.html" %}
+{% include "includes/footer.html" %}
 
-  </div>
+</div>
 
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+<script>
+
+  $("[id^=execute]").click(function () {
+
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[0]
+    var festival_id = cellIndex.firstChild.data.split(" ").join('');
+    console.log(festival_id)
+    var postdata = {
+      'festival_id': festival_id
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/myajax_festival_delete',
+      data: JSON.stringify(postdata),
+      dataType: 'JSON',
+      contentType: "application/json",
+      success: function (data) {
+        alert("성공");
+        window.location = 'jan_festival_using'
+      },
+      error: function (request, status, error) {
+        alert(error);
+        console.log(postdata);
+      }
+    })
+  })
+
+  $("[id^=go").click(function () {
+
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[3]
+    var url = cellIndex.firstChild.data.split(" ").join('');
+    window.open(url);
+
+  })
+  $("[id^=add").click(function () {
+    window.location = 'jan_festival_apply'
+
+  })
+</script>
+{% endblock javascripts %}
