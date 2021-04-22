@@ -16,7 +16,6 @@ config = {
     'host': '127.0.0.1',
     'port': 13306,
     'user': 'root',
-    'password':'root0127:)',
     'database': 'mydb',
     'charset': 'utf8'
 }
@@ -170,6 +169,12 @@ def order_post():
         with conn.cursor() as cursor:
             sql = "UPDATE orders SET requests=%s WHERE order_id=2"
             cursor.execute(sql, [json_data['request_text']])
+
+        conn.commit()
+
+        with conn.cursor() as cursor:
+            sql = "UPDATE users SET phone_number=%s WHERE user_no=2"
+            cursor.execute(sql, [json_data['phone_number']])
 
         conn.commit()
 

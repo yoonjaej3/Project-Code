@@ -8,7 +8,8 @@ email_validator
 python-decouple
 gunicorn
 kafka-python
-
+Authlib
+python-dotenv
 wtforms~=2.3.3
 sqlalchemy~=1.4.5
 pymysql~=1.0.2
