@@ -2,6 +2,8 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from app.base import constants
+from app.base.routes import requires_auth, session
 from app.home import blueprint
 from flask import render_template, request, jsonify
 from flask_login import login_required, current_user
@@ -25,6 +27,7 @@ config = {
 
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
+@requires_auth
 def index():
 
     db = pymysql.connect(**config)
@@ -33,10 +36,12 @@ def index():
     cur.execute(sql)
 
     data_list = cur.fetchall()
-
+    user_data = session[constants.JWT_PAYLOAD]['name']
+    
     return render_template('jaesung_festivalList.html',
                            segment='index',
-                           data_list=data_list)
+                           data_list=data_list,
+                           user_data=user_data)
 
 
 
