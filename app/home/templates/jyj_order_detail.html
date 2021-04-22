@@ -1,0 +1,122 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<head>
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+<div>
+  <div>
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="mb-0">구매자 정보</h3>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+
+            <tr>
+              <th scope="col">구매자 이름</th>
+              <th scope="col">구매자 연락처</th>
+              <th scope="col">음식 이름</th>
+              <th scope="col">주문 시간</th>
+              <th scope="col">총 가격</th>
+              <th scope="col">음식 수량</th>
+              <th scope="col">결제 종류</th>
+              <th scope="col">상태</th>
+              <th scope="col">요청 사항</th>
+              <th scope="col">삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td>
+                {{ datas[0] }}
+              </td>
+              <td>
+                {{ datas[1] }}
+              </td>
+              <td>
+                {{ datas[9] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                {{ datas[6] }}
+              </td>
+              <td>
+                {{ datas[7] }}
+              </td>
+              <td>
+                {{ datas[8] }}
+              </td>
+              <td>
+                {{ datas[11] }}
+              </td>
+              <td>
+                {{ datas[9] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% include "includes/footer.html" %}
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+<script>
+
+  $('#execute').click(function () {
+
+    var store_id = $('#store_id').text();
+    var postdata = {
+      'store_id': store_id
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/myajax_store_delete',
+      data: JSON.stringify(postdata),
+      dataType: 'JSON',
+      contentType: "application/json",
+      success: function (data) {
+        alert("성공");
+        window.location = 'jyj_order_detail'
+      },
+      error: function (request, status, error) {
+        alert(error);
+        console.log(postdata);
+      }
+    })
+  })
+</script>
+{% endblock javascripts %}
