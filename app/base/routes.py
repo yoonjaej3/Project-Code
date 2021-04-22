@@ -40,13 +40,11 @@ AUTH0_DOMAIN = env.get(constants.AUTH0_DOMAIN)
 AUTH0_BASE_URL = 'https://' + AUTH0_DOMAIN
 AUTH0_AUDIENCE = env.get(constants.AUTH0_AUDIENCE)
 
-# app2 = Flask(__name__, static_url_path='/static', static_folder='./static')
 blueprint.config={}
 blueprint.config['SECRET_KEY'] = constants.SECRET_KEY
 blueprint.config['DEBUG'] = True
 
 
-# app2 -> blueprint
 @blueprint.errorhandler(Exception)
 def handle_auth_error(ex):
     response = jsonify(message=str(ex))
@@ -73,7 +71,7 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if constants.PROFILE_KEY not in session:
-            return redirect('/login')
+            return redirect('/login_user')
         return f(*args, **kwargs)
 
     return decorated
@@ -113,17 +111,16 @@ def index_init():
     return render_template('accounts/festival_init.html', segment='index_init', data_list=data_list)
 
 ## Login & Registration
-# app2 -> blueprint
 @blueprint.route('/login_user')
 def user_login():
     return render_template('accounts/home.html')
 
-# app2 -> blueprint
+
 @blueprint.route('/login_auth')
 def auth_login():
     return auth0.authorize_redirect(redirect_uri=AUTH0_CALLBACK_URL, audience=AUTH0_AUDIENCE)
 
-# app2 -> blueprint
+
 @blueprint.route('/callback')
 def callback_handling():
     auth0.authorize_access_token()
@@ -139,69 +136,102 @@ def callback_handling():
     return redirect('/dashboard')
 
 
-# app2 -> blueprint
 @blueprint.route('/dashboard')
 @requires_auth
 def dashboard():
+    userinfo_pretty = json.dumps(session[constants.JWT_PAYLOAD], indent=4, ensure_ascii=False)
+    
     return render_template('accounts/dashboard.html',
                            userinfo=session[constants.PROFILE_KEY],
-                           userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD], indent=4))
+                           userinfo_pretty=userinfo_pretty)
 
 
-@blueprint.route('/register', methods=['GET', 'POST'])
-def register():
-    login_form = LoginForm(request.form)
-    create_account_form = CreateAccountForm(request.form)
-    if 'register' in request.form:
+# admin register
+@blueprint.route('/register_admin')
+@requires_auth
+def admin_register():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    check = cur.fetchone()
+    
+    if not check:
+        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('관리자', %s, %s, '')'''
+        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        db.commit()
+        is_admin = True
+    else:
+        is_admin = False
 
-        # ID            = request.form['ID']
-        username      = request.form['username']
-        email         = request.form['email']
-        # Password      = request.form['Password']
-        # User_catecory = request.form['User_category']
-        # Phone_number  = request.form['Phone_number']
+
+    return render_template('accounts/register_admin.html', is_admin=is_admin, userinfo=session[constants.PROFILE_KEY])
     
 
-        # Check usename exists
-        user = User.query.filter_by(username=username).first()
-        
-        # Check username exists
-        # db = pymysql.connect(**config)
-        # cur = db.cursor()
-        # cur.execute('SELECT * FROM users WHERE ID = %s', (Username,))
-        # user = cur.fetchone()
-        if user:
-            return render_template( 'accounts/register.html', 
-                                    msg='Username already registered',
-                                    success=False,
-                                    form=create_account_form)
-
-        # else we can create the user
-        # cur.execute('INSERT INTO users VALUES (%s, %s, %s, %s, %s)', (ID, Username, Password, User_catecory, Phone_number,)) 
-        # db.commit()
-        
-        # Check email exists
-        user = User(**request.form)
-        # sqlalchemy db
-        db.session.add(user)
-        db.session.commit()
-        
-
-
-        return render_template( 'accounts/register.html', 
-                                msg='User created please <a href="/login">login</a>', 
-                                success=True,
-                                form=create_account_form)
-
+# organizer register
+@blueprint.route('/register_org')
+@requires_auth
+def org_register():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    check = cur.fetchone()
+    
+    if not check:
+        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('주최자', %s, %s, '')'''
+        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        db.commit()
+        is_org = True
     else:
-        return render_template( 'accounts/register.html', form=create_account_form)
+        is_org = False
+
+    return render_template('accounts/register_org.html', is_org=is_org, userinfo=session[constants.PROFILE_KEY])
 
 
-# app2 -> blueprint
+# seller register
+@blueprint.route('/register_seller')
+@requires_auth
+def seller_register():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    check = cur.fetchone()
+    
+    if not check:
+        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('판매자', %s, %s, '')'''
+        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        db.commit()
+        is_seller = True
+    else:
+        is_seller = False
+
+    return render_template('accounts/register_seller.html', is_seller=is_seller, userinfo=session[constants.PROFILE_KEY])
+
+
+# buyer register
+@blueprint.route('/register_buyer')
+@requires_auth
+def buyer_register():
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    check = cur.fetchone()
+    
+    if not check:
+        sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('구매자', %s, %s, '')'''
+        cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
+        db.commit()
+        is_buyer = True
+    else:
+        is_buyer = False
+
+    return render_template('accounts/register_buyer.html', is_buyer=is_buyer, userinfo=session[constants.PROFILE_KEY])
+
+
 @blueprint.route('/logout_auth')
 def auth_logout():
     session.clear()
-    return redirect(url_for('base_blueprint.index_init'))
+    params = {'returnTo': url_for('base_blueprint.route_default', _external=True), 'client_id': AUTH0_CLIENT_ID}
+    return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
 
 
 ## Errors
