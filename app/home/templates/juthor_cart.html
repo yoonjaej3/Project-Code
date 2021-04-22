@@ -103,7 +103,7 @@
 			"order": checkedValue
 		}
     //console.log(data);
-    fetch(END_POINT_API + '/order_insert/<int:id>', {
+    fetch(END_POINT_API + '/order_insert', {
 			method: "POST",
 			headers: {
 				'Content-Type': 'application/json',
@@ -126,55 +126,7 @@
 		})
   }
 
-
-
-
-
-
-    // function deleteItem(){
-		// //console.log(Array.isArray(qtyInput));
-    // let deleteItem = document.getElementsByClassName("delete")
-    // let checkedValue = [];
-
-    // for (var i = 0; i < deleteItem.length; i++){
-    //   if (deleteItem[i]){
-    //     //var id=orderInput[i].value; 
-    //     checkedValue.push({"id":delete[i].value});
-    //     console.log(checkedValue[i]);
-    //   }
-    // }
-
-    // data = {
-		// 	"delete": deleteItem
-		// }
-    // //console.log(data);
-    // fetch(END_POINT_API + '/order_delete', {
-		// 	method: "POST",
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 	},
-		// 	body: JSON.stringify(data),
-		// })
-		// .then((response)=>{
-		// 	console.log(response.status);
-		// 	if (response.status === 200) {
-		// 		if(confirm("삭제하시겠습니까?") == true){
-    //       alert("삭제되었습니다.")
-		// 			window.location.href = "/juthor_cart";
-		// 		}
-		// 		else{
-		// 			window.location.href = '/juthor_cart';
-		// 		}
-		// 	}
-		// })
-		// .catch(err=>{
-		// 	console.log(err)
-		// })
-    // }
-
-
-    $("[id^=execute]").click(function (){
-
+  $("[id^=execute]").click(function (){
     var order_detail_id = $('#order_detail_id').text();
     var postdata = {
       'id': order_detail_id
