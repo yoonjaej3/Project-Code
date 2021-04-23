@@ -150,6 +150,10 @@ def dashboard():
 @blueprint.route('/register_admin')
 @requires_auth
 def admin_register():
+
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = 'admin'
+    
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -159,6 +163,7 @@ def admin_register():
     if not check:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [admin, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
+
         db.commit()
         is_admin = True
     else:
@@ -171,6 +176,10 @@ def admin_register():
 @blueprint.route('/register_org')
 @requires_auth
 def org_register():
+
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = 'org'
+
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -193,6 +202,10 @@ def org_register():
 @blueprint.route('/register_seller')
 @requires_auth
 def seller_register():
+
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = 'seller'
+
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -203,10 +216,11 @@ def seller_register():
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [seller, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
+        
         is_seller = True
     else:
         is_seller = False
-
+    
     return render_template('accounts/register_seller.html', is_seller=is_seller, userinfo=session[constants.PROFILE_KEY])
 
 
@@ -214,6 +228,10 @@ def seller_register():
 @blueprint.route('/register_buyer')
 @requires_auth
 def buyer_register():
+    
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = 'buyer'
+
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -224,10 +242,11 @@ def buyer_register():
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [user, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
+      
         is_buyer = True
     else:
         is_buyer = False
-
+    
     return render_template('accounts/register_buyer.html', is_buyer=is_buyer, userinfo=session[constants.PROFILE_KEY])
 
 

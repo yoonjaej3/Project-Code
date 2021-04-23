@@ -50,8 +50,10 @@
                 {% for datas in data_list %}
                 <!-- <tr onClick="location.href='/storelist'" style="cursor:pointer;"> -->
                 <tr>
-                    <td>
-                      {{ datas[0] }}<!--카테고리-->
+                  <td>
+                      <a href="{{ datas[2] }}">
+                        {{ datas[0] }}<!--카테고리-->
+                      </a>
                     </td>
                     <td>
                         {{ datas[1] }} <!--음식점 갯수-->
@@ -72,10 +74,10 @@
 
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
+Specific JS goes HERE 
 {% block javascripts %}
 <!-- 테이블 row 클릭 시 내보내야함 --> 
-<script type="text/javascript">
+<!-- <script type="text/javascript">
   $("#example-table-1 tr").click(function(){ 	
   
       var str = ""
@@ -106,5 +108,5 @@
       $("#ex1_Result1").html(" * 클릭한 Row의 모든 데이터 = " + tr.text());		
       $("#ex1_Result2").html(str);
   });
-  </script>
+  </script> -->
 {% endblock javascripts %}
