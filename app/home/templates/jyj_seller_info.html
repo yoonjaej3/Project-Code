@@ -40,7 +40,7 @@
           <tbody>
             {% for datas in data_list %}
             <tr>
-              <td id="store_id" class="store_id">{{ datas[0] }}</td>
+              <td id="store_id">{{ datas[0] }}</td>
               <td>
                 {{ datas[2] }}
               </td>
@@ -89,12 +89,9 @@
 
 <script>
 
-  $("[id^=execute]").click(function () {
+  $('#execute').click(function () {
 
-    var cell = $(this).closest('td')
-    var cellIndex = cell[0].parentNode.cells[0]
-    var store_id = cellIndex.firstChild.data
-
+    var store_id = $('#store_id').text();
     var postdata = {
       'store_id': store_id
     }

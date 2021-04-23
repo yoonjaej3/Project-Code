@@ -34,12 +34,36 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-            <h3 class="mb-0">주문 하기</h3>
+            <h3 class="mb-0">가게 선택하기</h3>
           </div>
           <!-- Light table -->
           <div class="table-responsive">
             <table class="table">
-              
+              <th>
+                <tr>
+                  <td>가게 이름</td>
+                  <td>가게 설명</td>
+                </tr>
+              </th>
+              {% for datas in data_list %}
+                <!-- <tr onClick="location.href='/storelist'" style="cursor:pointer;"> -->
+                  <th scope="row">
+                    <div class="media align-items-center">
+                      <div class="media-body">
+                        <a href="/juthor_storemenulist/{{ datas[1] }}">
+                          <span class="name mb-0 text-sm">{{ datas[0] }}</span> <!--카테고리-->
+                        </a>
+                      </div>
+                    </div>
+                    <td style="display:none;">
+                      {{ datas[1] }} <!--음식점 갯수-->
+                    </td>
+                    <td>
+                      {{ datas[2] }} <!--음식점 갯수-->
+                    </td>
+                  </th>
+                </tr>
+                {% endfor %}
             </table>
           </div>
         </div>
@@ -54,4 +78,6 @@
 {% endblock content %}
 
 <!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+
+{% endblock javascripts %}
