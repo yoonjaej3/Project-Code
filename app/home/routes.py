@@ -24,7 +24,6 @@ config = {
 }
 
 
-
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
 @requires_auth
@@ -37,16 +36,17 @@ def index():
 
     data_list = cur.fetchall()
 
-    # sql2 = "SELECT * from users"
-    # cur.execute(sql2)
+    cur.execute('SELECT user_no, user_category FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    user_num = cur.fetchone()
+    session[constants.JWT_PAYLOAD]['user_no'] = user_num[0]
+    session[constants.JWT_PAYLOAD]['user_category'] = user_num[1]
+    
     user_data = session[constants.JWT_PAYLOAD]['name']
 
-    print(user_data)
     return render_template('jaesung_festivalList.html',
                            segment='index',
                            data_list=data_list,
                            user_data=user_data)
-
 
 
 # <<<------------연옥-------------->>>
