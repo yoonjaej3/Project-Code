@@ -1,57 +1,168 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} 관리자 메인 {% endblock title %}
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
 
-  <div class="header bg-primary pb-6">
-    <div class="container-fluid">
-      <div class="header-body">
-        <div class="row align-items-center py-4">
-          <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">주최기관 보기</h6>
-            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
-              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                <li class="breadcrumb-item"><a href="#">Tables</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Tables</li>
-              </ol>
-            </nav>
-          </div>
-          <div class="col-lg-6 col-5 text-right">
-            <a href="#" class="btn btn-sm btn-neutral">등록하기</a>
-            <a href="#" class="btn btn-sm btn-neutral">정보수정하기</a>
+<head>
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+<div>
+  <div>
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="mb-0">관리자 메인 리스트</h3>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  
-  <!-- Page content -->
-  <div class="container-fluid mt--6">
-    <div class="row">
-      <div class="col">
-        <div class="card">
-          <!-- Card header -->
-          <div class="card-header border-0">
-            <h3 class="mb-0">주최기관 리스트</h3>
-          </div>
-          <!-- Light table -->
-          <div class="table-responsive">
-            <table class="table">
-              
-            </table>
-          </div>
-        </div>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+
+            <tr>
+              <h5 class="mb-0">주최기관 리스트</h5>
+              <th scope="col">주체기관 명</th>
+              <th scope="col">담당자</th>
+              <th scope="col">담당자 연락처</th>
+              <th scope="col">페스티벌 명</th>
+              <th scope="col">기간</th>
+              <th scope="col">장소</th>
+              <th scope="col">삭제</th>
+              <th scope="col-sm-6"><button type="button" class="btn btn-primary btn-sm" id="add"> 추가하기 </button></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td style="display:none">
+                {{ datas[7] }}
+              </td>
+              <td>
+                {{ datas[2] }}
+              </td>
+              <td>
+                {{ datas[0] }}
+              </td>
+              <td>
+                {{ datas[1] }}
+              </td>
+              <td>
+                {{ datas[3] }}
+              </td>
+              <td>
+                {{ datas[4] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <br>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+            <tr>
+              <h5 class="mb-0">페스티벌 리스트</h5>
+              <th scope="col">페스티벌 명</th>
+              <th scope="col">기간</th>
+              <th scope="col">장소</th>
+              <th scope="col">URL</th>
+              <th scope="col">정보 조회 바로가기</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td>
+                {{ datas[3] }}
+              </td>
+              <td>
+                {{ datas[4] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                {{ datas[6] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm" id="go">바로가기</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-
-
-    {% include "includes/footer.html" %}
-
   </div>
+
+</div>
+
+{% include "includes/footer.html" %}
+
+</div>
 
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+<script>
+
+  $("[id^=execute]").click(function () {
+
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[0]
+    var festival_id = cellIndex.firstChild.data.split(" ").join('');
+    console.log(festival_id)
+    var postdata = {
+      'festival_id': festival_id
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/myajax_festival_delete',
+      data: JSON.stringify(postdata),
+      dataType: 'JSON',
+      contentType: "application/json",
+      success: function (data) {
+        alert("성공");
+        window.location = 'jan_festival_using'
+      },
+      error: function (request, status, error) {
+        alert(error);
+        console.log(postdata);
+      }
+    })
+  })
+
+  $("[id^=go").click(function () {
+
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[3]
+    var url = cellIndex.firstChild.data.split(" ").join('');
+    window.open(url);
+
+  })
+  $("[id^=add").click(function () {
+    window.location = 'jan_festival_apply'
+
+  })
+</script>
+{% endblock javascripts %}
