@@ -110,6 +110,7 @@ def index_init():
     
     return render_template('accounts/festival_init.html', segment='index_init', data_list=data_list)
 
+
 ## Login & Registration
 @blueprint.route('/login_user')
 def user_login():
