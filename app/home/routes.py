@@ -1,17 +1,17 @@
+# -*- encoding: utf-8 -*-
 """
 Copyright (c) 2019 - present AppSeed.us
 """
 
 from app.home import blueprint
-from flask import render_template, request, jsonify
+from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
+from app import login_manager
 from jinja2 import TemplateNotFound
-import flask_restful
 import pymysql
 import json
 import MySQLdb
 from datetime import datetime
-
 
 config = {
     'host': '127.0.0.1',
@@ -23,8 +23,6 @@ config = {
 }
 
 
-
-# <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
 def index():
 
@@ -35,14 +33,19 @@ def index():
 
     data_list = cur.fetchall()
 
+    # sql2 = "SELECT * from users"
+    # cur.execute(sql2)
+    user_data = session[constants.JWT_PAYLOAD]['name']
+
+    print(user_data)
     return render_template('jaesung_festivalList.html',
                            segment='index',
                            data_list=data_list)
 
 
-
 # <<<------------연옥-------------->>>
 @blueprint.route('/admin_index')
+
 def index2():
 
     db = pymysql.connect(**config)
@@ -52,14 +55,14 @@ def index2():
 
     data_list = cur.fetchall()
 
-    
-    return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
+    return render_template('jan_festival.html',
+                           segment='index2',
+                           data_list=data_list)
 
 @blueprint.route('/jan_apply/', methods=['GET', 'POST'])
 def index2_1_1():
     db = pymysql.connect(**config)
     c = db.cursor()
-
 
     sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
     c.execute(sql)
@@ -298,7 +301,7 @@ def order_get():
     conn = pymysql.connect(**config)
     cursor = conn.cursor()
 
-    sql = '''SELECT total_price FROM orders WHERE order_id=2'''
+    sql = '''SELECT total_price FROM orders WHERE order_id=3'''
 
     cursor.execute(sql)
 
@@ -310,7 +313,6 @@ def order_get():
 @blueprint.route('/order_post', methods=['POST'])
 def order_post():
     json_data = request.get_json()
-    conn = pymysql.connect(**config)
 
     try:
         with conn.cursor() as cursor:
@@ -332,29 +334,18 @@ def credit_get():
 
     try:
         with conn.cursor() as cursor:
-            sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                        ON a.store_id = b.store_id WHERE a.user_no = 2'''
-            cursor.execute(sql)
+            sql = "UPDATE users SET phone_number=%s WHERE user_id=3"
+            cursor.execute(sql, [json_data['phone_number']])
 
-        store_data = cursor.fetchall()
-
-        with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE user_no=2"
-            cursor.execute(sql)
-
-        price_data = cursor.fetchall()
+        conn.commit()
 
         with conn.cursor() as cursor:
-            sql = '''SELECT order_state FROM orders WHERE order_id=2'''
-            cursor.execute(sql)
+            sql = "UPDATE orders SET requests=%s WHERE order_id=3"
+            cursor.execute(sql, [json_data['request_text']])
 
-        order_state = cursor.fetchall()
+        conn.commit()
 
     finally:
-        data_list = []
-        for i, j, k in zip(store_data, price_data, order_state):
-            data_list.append(i + j + k)
-
         conn.close()
 
     return render_template('jhj_credit.html', data_list=data_list)
@@ -681,7 +672,6 @@ def myajax_state_update():
     return jsonify(result="success", result2=json_data)
 
 
-  
 @blueprint.route('/<template>')
 def route_template(template):
 
@@ -703,8 +693,7 @@ def route_template(template):
         return render_template('page-500.html'), 500
 
 
-
-# Helper - Extract current page name from request 
+# Helper - Extract current page name from request
 def get_segment(request):
 
     try:
@@ -717,5 +706,4 @@ def get_segment(request):
         return segment
 
     except:
-
-        return None  
+        return None
