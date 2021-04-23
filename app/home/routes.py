@@ -4,13 +4,13 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from app.home import blueprint
+from app.base.routes import session
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 from app import login_manager
 from jinja2 import TemplateNotFound
 import pymysql
 import json
-import MySQLdb
 from datetime import datetime
 
 config = {
