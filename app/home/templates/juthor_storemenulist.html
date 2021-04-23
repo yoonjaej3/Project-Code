@@ -60,9 +60,9 @@
                     </tr>
                   </tbody>
                   {% endfor %}                        
-                  <div class="btn btn-link" onclick="menuPost()">결제하기</div>
                 </form>
               </table>
+              <button type="button" class="btn btn-outline-primary" style="margin: 10px;float: right; margin-right: 45%" onclick="menuPost()">결제하기</button>
             </div>
           </div>
         </div>
@@ -87,6 +87,7 @@
     let id = window.location.pathname.split("/").pop();
 		let checkedValue = [];
 		let data = {};
+    let checkconfirm = 0;
 		//alert(id);
     
     console.log(checkedValue)
@@ -94,6 +95,7 @@
       if (orderInput[i].checked){
         checkedValue.push({[orderInput[i].name]:qty[i].value});
         console.log(checkedValue[i]);
+        checkconfirm += 1;
       }
     }
 
@@ -112,12 +114,15 @@
 		})
 		.then((response)=>{
 			console.log(response.status);
-			if (response.status === 200) {
+      if (!checkconfirm){
+        alert("메뉴를 선택해주세요")
+      }
+		  else if (response.status === 200) {
 				if(confirm("결제하기로 이동하시겠습니까?") == true){
 					window.location.href = "/jhj_order";
 				}
 				else{
-					window.location.href = '/juthor_cart';
+					window.location.href = window.location.href;
 				}
 			}
 		})

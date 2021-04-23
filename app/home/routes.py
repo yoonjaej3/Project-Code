@@ -2,8 +2,6 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from app.base import constants
-from app.base.routes import requires_auth, session
 from app.home import blueprint
 from flask import render_template, request, jsonify
 from flask_login import login_required, current_user
@@ -11,6 +9,7 @@ from jinja2 import TemplateNotFound
 import flask_restful
 import pymysql
 import json
+import MySQLdb
 from datetime import datetime
 
 
@@ -27,7 +26,6 @@ config = {
 
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
-@requires_auth
 def index():
 
     db = pymysql.connect(**config)
@@ -36,12 +34,10 @@ def index():
     cur.execute(sql)
 
     data_list = cur.fetchall()
-    user_data = session[constants.JWT_PAYLOAD]['name']
-    
+
     return render_template('jaesung_festivalList.html',
                            segment='index',
-                           data_list=data_list,
-                           user_data=user_data)
+                           data_list=data_list)
 
 
 
@@ -58,7 +54,6 @@ def index2():
 
     
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
-
 
 @blueprint.route('/jan_apply/', methods=['GET', 'POST'])
 def index2_1_1():
@@ -86,8 +81,6 @@ def index2_2():
     
     return render_template('jan_festival.html', segment='index2_2', data_list=data_list)
 
-
-# <<<------------현주_1-------------->>>
 
 @blueprint.route('/juthor_dash')
 def index3():
@@ -396,51 +389,85 @@ def credit_get():
 # @login_required
 def order_insert():
     data = request.get_json()
-    print("----python---")
-    print(type(data))
-    print(data, "asdf")
-    # print("request: ", request.get_json())
+    #print("----python---")
+    #print(type(data), data, "data")
     
-# data 에서 받은 값들이 문자열로 내가 하나하나 다룰수있음을 확신하는 코드로 확인
+    # data 에서 받은 값들이 문자열로 내가 하나하나 다룰수있음을 확신하는 코드로 확인
 
-# DB algo
+    # DB algo
     db = pymysql.connect(host="localhost", user="root", password="mysql",
                  db="mydb", charset="utf8")
     cur = db.cursor()
 
     sum = 0
-    total = 0
+    cnt = 0
     k = data.keys()
     kk = list(k)
     main_key=kk[0]
-    print(main_key)
 
     for d in data[main_key]:
-        print(type(d), d)
         for key, value in d.items():
-            print(key, value, "ddd")
+            # 전체 수량 합하기
+            for i in value:
+                cnt += int(i)
+
             cur.execute("select menu_price from menu where menu_id=%s", key)
             a = cur.fetchall()
-
-            print(key, a, "A의 값 \n")
-
+            
+            # 전체 가격 합하기
             for i in a:
                 for j in i:
-                    #print(type(j), type(value))
                     sum += int(j) * int(value)
+                #print(cnt)
         
-    print(sum, "Tt")
     sql = "insert into orders (user_no, store_id, total_qty, total_price) values(1, %s, %s, %s)"
-    cur.execute(sql, (main_key, value, sum))
+    cur.execute(sql, (main_key, cnt, sum))
+    db.commit()
+    
+    
+    db.close()
+    
+    newID = cur.lastrowid
+    print(newID, type(newID))
+    orderdetail_insert(main_key, data, newID)
+    # return "hello"
+    return render_template('juthor_cart.html', segment='cartlist')
+
+
+
+
+
+def orderdetail_insert(store_id, data, newID):
+   
+
+    #print(data, store_id)
+    db = pymysql.connect(host="localhost", user="root", password="mysql",
+        db="mydb", charset="utf8")
+    cur = db.cursor()
+    cnt = 0
+    price = 0
+    for d in data[store_id]:
+        for key, value in d.items():
+            # 수량 뽑아내기
+            for i in value:
+                # cnt += int(i)
+                cnt = int(i)
+                print(cnt)
+
+            cur.execute("select menu_price from menu where menu_id=%s", key)
+            print(type(key))
+            a = cur.fetchall()
+            
+            # 가격 뽑아내기
+            for i in a:
+                for j in i:
+                    price = int(j)
+                    sql = "insert into order_detail (order_id, menu_id, food_price, food_qty) values(%s, %s, %s, %s)"
+                    cur.execute(sql, (int(newID), int(key), int(price), int(cnt)))
     
     db.commit()
     db.close()
-
-    return "hello"
-    # return render_template('juthor_cart.html', segment='cartlist')
-
-
-
+    return "success"
 
 
 
