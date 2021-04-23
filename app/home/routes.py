@@ -48,7 +48,6 @@ def index():
 
 # <<<------------연옥-------------->>>
 @blueprint.route('/admin_index')
-
 def index2():
 
     db = pymysql.connect(**config)
@@ -58,35 +57,101 @@ def index2():
 
     data_list = cur.fetchall()
 
-    return render_template('jan_festival.html',
-                           segment='index2',
-                           data_list=data_list)
+    
+    return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
 
-@blueprint.route('/jan_apply/', methods=['GET', 'POST'])
+@blueprint.route('/jan_apply', methods=['GET', 'POST'])
 def index2_1_1():
     db = pymysql.connect(**config)
     c = db.cursor()
+    data = request.get_json()
 
-    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
+    # 입력된 데이터 json으로 잘 받아지는지 확인
+
+    print(data)
+
+    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no=%s"
     c.execute(sql)
-    
     data_list = c.fetchall()
-    
-    return jsonify(result="success", result2=data_list)
+  
+    # return jsonify(result="success", result2=data_list)
+    return render_template('jan_apply.html', segment='index2_1_1', data_list=data_list)
 
 
 @blueprint.route('/jan_festival')
 def index2_2():
-
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from festival"
+    # sql = "SELECT * from orders"
+    sql = "SELECT A.order_id,A.total_price,B.festival_id,B.festival_name from orders A INNER JOIN festival B ON A.user_no=B.user_no"
     cur.execute(sql)
 
     data_list = cur.fetchall()
     
-    return render_template('jan_festival.html', segment='index2_2', data_list=data_list)
+    return jsonify(data_list)
+    # return render_template('jan_festival.html', data_list=data_list)
+
+
+@blueprint.route('/jan_festival_using')
+def jan_festival_using():
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = '''SELECT A.user_name,A.phone_number,B.company_name,B.festival_name,B.period,B.location,B.url,B.festival_id
+        from users A INNER JOIN festival B
+        ON A.user_no=B.user_no
+        '''
+    cur.execute(sql)
+
+    data_list = cur.fetchall()
+    return render_template('jan_festival_using.html', data_list=data_list)
+
+
+@blueprint.route('/myajax_festival_delete', methods=['POST'])
+def myajax_festival_delete():
+
+    json_data = request.get_json()
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+
+    data_store_id = {}
+    sql = "SELECT store_id from store where festival_id=%s"
+    cur.execute(sql, [json_data['festival_id']])
+    data_store_id = cur.fetchall()
+
+    for i in data_store_id:
+        sql = '''Delete from orders where store_id=%s
+        '''
+        cur.execute(sql, [i])
+
+    for i in data_store_id:
+        sql = '''Delete from menu where store_id=%s
+        '''
+        cur.execute(sql, [i])
+
+    sql = '''Delete from store where festival_id=%s
+    '''
+    cur.execute(sql, [json_data['festival_id']])
+
+    sql = '''Delete from festival where festival_id=%s
+    '''
+    cur.execute(sql, [json_data['festival_id']])
+
+    db.commit()
+
+    return jsonify(result="success", result2=json_data)
+
+
+@blueprint.route('/myajax_festival_insert', methods=['POST'])
+def myajax_festival_insert():
+
+    # var postdata = {
+    #       'company_name': company_name, 'user_name': user_name, 'phone_number': phone_number, 'period': period,
+    #       'festival_name': festival_name, 'location ': location, 'url': url
+    #     }
+
+    return jsonify(result="success", result2=json_data)
 
 
 # <<<------------현주_1-------------->>>

@@ -12,8 +12,8 @@
   <div class="container-fluid d-flex align-items-center">
     <div class="row">
       <div class="col-lg-7 col-md-10">
-        <h1 class="display-2 text-white">안녕하세요, {{ current_user.username }}님!</h1>
-        <a href="#!" class="btn btn-neutral">정보 수정하기</a>
+        <h1 class="display-2 text-white">안녕하세요!</h1>
+
       </div>
     </div>
   </div>
@@ -21,16 +21,16 @@
 <!-- Page content -->
 <div class="container-fluid mt--6">
   <div class="row">
-    <div class="col-xl-8 order-xl-1">
+    <div class="col-xl-10 order-xl-1">
       <form role="form" name=applyfm>
         <div class="card">
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-8">
-                <h3 class="mb-0">페스티벌 등록하기</h3>
+                <h3 class="mb-0">정보 확인하기</h3>
               </div>
               <div class="col-4 text-right">
-                <input type="button" class="btn btn-primary btn-lg btn-block" id="execute" value='저장하기' />
+                <input type="button" class="btn btn-primary btn-lg btn-block" id="execute" value='변경하기' />
               </div>
             </div>
           </div>
@@ -44,6 +44,15 @@
                       <form action='/jan_apply' method='POST'>
                       <label class="form-control-label" for="input-holder">주최기관</label>
                       <input type="text" id="holder" name="holder" class="form-control" placeholder="Organization">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-4">
+                    <div class="form-group">
+                      <form action='/jan_apply' method='POST'>
+                      <label class="form-control-label" for="input-contact">담당자 연락처</label>
+                      <input type="text" id="contact" name="contact" class="form-control" placeholder="010-0000-0000">
                     </div>
                   </div>
                 </div>
@@ -104,6 +113,7 @@
 <script>
   $('#execute').click(function () {
     let holder = $('#holder').val();
+    let contact = $('#contact').val();
     let festival_title = $('#festival_title').val();
     let dates= $('#dates').val();
     let location = $('#location').val();
@@ -111,6 +121,7 @@
 
     var post_data = {
       'holder': holder,
+      'contact': contact,
       'festival_title': festival_title,
       'dates': dates,
       'location': location,
@@ -124,6 +135,11 @@
       return theForm.holder.focus();
     }
     
+    if (theForm.contact.value == ""){
+      alert("연락처를 입력하세요.");
+      return theForm.contact.focus();
+    }
+
     if (theForm.festival_title.value == ""){
       alert("페스티벌 명을 입력하세요.");
       return theForm.festival_title.focus();
