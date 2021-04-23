@@ -154,7 +154,7 @@ def admin_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    admin = '관리자'
+    admin = 'admin'
 
     if not check:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
@@ -175,7 +175,7 @@ def org_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    manager = '주최자'
+    manager = 'manager'
 
     if not check:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
@@ -197,7 +197,7 @@ def seller_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    seller = '판매자'
+    seller = 'seller'
 
     if not check:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
@@ -218,7 +218,7 @@ def buyer_register():
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
-    user = '고객'
+    user = 'customer'
 
     if not check:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''

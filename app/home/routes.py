@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 from app.base import constants
 from app.base.routes import requires_auth, session
 from app.home import blueprint
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, redirect
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound
 import flask_restful
@@ -23,10 +23,32 @@ config = {
 }
 
 
+def get_id():
+    conn = pymysql.connect(**config)
+
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT user_no, user_category FROM users WHERE email = %s"
+            cursor.execute(sql, [session[constants.JWT_PAYLOAD]['email']])
+
+        user_no = cursor.fetchone()
+
+        with conn.cursor() as cursor:
+            sql = "SELECT order_id FROM orders WHERE user_no=%s"
+            cursor.execute(sql, [user_no[0]])
+
+        order_id = cursor.fetchone()
+
+    finally:
+        data_list = [user_no[0], user_no[1], order_id]
+
+        conn.close()
+
+    return data_list
+
 
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
-@requires_auth
 def index():
 
     db = pymysql.connect(**config)
@@ -43,7 +65,6 @@ def index():
                            user_data=user_data)
 
 
-
 # <<<------------연옥-------------->>>
 @blueprint.route('/admin_index')
 def index2():
@@ -55,7 +76,6 @@ def index2():
 
     data_list = cur.fetchall()
 
-    
     return render_template('jan_festival_using.html', segment='index2', data_list=data_list)
 
 
@@ -63,7 +83,6 @@ def index2():
 def index2_1_1():
     db = pymysql.connect(**config)
     c = db.cursor()
-
 
     sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
     c.execute(sql)
@@ -87,7 +106,6 @@ def index2_2():
 
 
 # <<<------------현주_1-------------->>>
-
 @blueprint.route('/juthor_dash')
 def index3():
 
@@ -151,116 +169,24 @@ def get_menu():
 
 
 # <<<------------현재-------------->>>
-# class Order(flask_restful.Resource):
-#     def __init__(self):
-#         self.conn = pymysql.connect(**config)
-#         self.cursor = self.conn.cursor()
-
-#     @blueprint.route('/jhj_order')
-#     @requires_auth
-#     def order_get(self, order_id):
-#         sql = '''SELECT total_price FROM orders WHERE order_id=%s'''
-
-#         self.cursor.execute(sql, [order_id])
-
-#         data_list = self.cursor.fetchall()
-
-#         return render_template('jhj_order.html', data_list=data_list)
-
-#     @blueprint.route('/order_post', methods=['POST'])
-#     @requires_auth
-#     def order_post(self, user_no, order_id):
-#         json_data = request.get_json()
-
-#         try:
-#             with self.cursor:
-#                 sql = "UPDATE orders SET requests=%s WHERE order_id=%s"
-#                 self.cursor.execute(sql, [json_data['request_text'], order_id])
-
-#             self.conn.commit()
-
-#             with self.cursor:
-#                 sql = "UPDATE users SET phone_number=%s WHERE user_no=%s"
-#                 self.cursor.execute(sql, [json_data['phone_number'], user_no])
-
-#             self.conn.commit()
-
-#         finally:
-#             self.conn.close()
-
-#         return jsonify(result="success", result2=json_data)
-
-#     @blueprint.route('/jhj_credit')
-#     @requires_auth
-#     def credit_get(self, user_no, order_id):
-
-#         try:
-#             with self.cursor:
-#                 sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-#                             ON a.store_id = b.store_id WHERE a.user_no=%s'''
-#                 self.cursor.execute(sql, [user_no])
-
-#             store_data = self.cursor.fetchall()
-
-#             with self.cursor:
-#                 sql = "SELECT total_price FROM orders WHERE user_no=%s"
-#                 self.cursor.execute(sql, [user_no])
-
-#             price_data = self.cursor.fetchall()
-
-#             with self.cursor:
-#                 sql = '''SELECT order_state FROM orders WHERE order_id=%s'''
-#                 self.cursor.execute(sql, [order_id])
-
-#             order_state = self.cursor.fetchall()
-
-#         finally:
-#             data_list = []
-#             for i, j, k in zip(store_data, price_data, order_state):
-#                 data_list.append(i + j + k)
-
-#             self.conn.close()
-
-#         return render_template('jhj_credit.html', data_list=data_list)
-
-def get_id():
-    conn = pymysql.connect(**config)
-
-    try:
-        with conn.cursor() as cursor:
-            sql = "SELECT user_no FROM users WHERE email = %s"
-            cursor.execute(sql, [session[constants.JWT_PAYLOAD]['email']])
-        
-        user_no = cursor.fetchone()
-
-        with conn.cursor() as cursor:
-            sql = "SELECT order_id FROM orders WHERE user_no=%s"
-            cursor.execute(sql, user_no)
-        
-        order_id = cursor.fetchone()
-
-    finally:
-        data_list = [user_no[0], order_id[0]]
-
-        conn.close()
-
-    return data_list
-
 @blueprint.route('/jhj_order')
 @requires_auth
 def order_get():
     conn = pymysql.connect(**config)
     data = get_id()
 
-    try:
-        with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE order_id=%s"
-            cursor.execute(sql, [data[1]])
+    if not data[2]:
+        return redirect('/jaesung_festivalList')
+    else:
+        try:
+            with conn.cursor() as cursor:
+                sql = "SELECT total_price FROM orders WHERE order_id=%s"
+                cursor.execute(sql, [data[1]])
 
-        data_list = cursor.fetchall()
+            data_list = cursor.fetchall()
 
-    finally:
-        conn.close()
+        finally:
+            conn.close()
 
     return render_template('jhj_order.html', data_list=data_list)
 
@@ -501,11 +427,7 @@ def store_save():
 def myajax():
 
     json_data = request.get_json()
-    db = pymysql.connect(host="localhost",
-                         user="root",
-                         password="1234",
-                         db="mydb",
-                         charset="utf8")
+    db = pymysql.connect(**config)
     cur = db.cursor()
     data_festival_id = {}
     sql = "SELECT festival_id from festival where festival_name=%s"
