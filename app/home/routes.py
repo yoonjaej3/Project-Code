@@ -36,8 +36,12 @@ def index():
     cur.execute(sql)
 
     data_list = cur.fetchall()
+
+    # sql2 = "SELECT * from users"
+    # cur.execute(sql2)
     user_data = session[constants.JWT_PAYLOAD]['name']
-    
+
+    print(user_data)
     return render_template('jaesung_festivalList.html',
                            segment='index',
                            data_list=data_list,

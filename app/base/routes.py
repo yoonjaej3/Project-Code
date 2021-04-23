@@ -151,11 +151,16 @@ def dashboard():
 @blueprint.route('/register_admin')
 @requires_auth
 def admin_register():
+
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = '관리자'
+    
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
     check = cur.fetchone()
     
+    # data insert
     if not check:
         sql = '''INSERT INTO users (user_category, email, user_name, phone_number) VALUES ('관리자', %s, %s, '')'''
         cur.execute(sql, [session[constants.JWT_PAYLOAD]['email'],session[constants.JWT_PAYLOAD]['name']])
@@ -164,6 +169,10 @@ def admin_register():
     else:
         is_admin = False
 
+    # insert user_no
+    cur.execute('SELECT user_no FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    user_num = cur.fetchone()
+    session[constants.JWT_PAYLOAD]['user_no'] = user_num[0]
 
     return render_template('accounts/register_admin.html', is_admin=is_admin, userinfo=session[constants.PROFILE_KEY])
     
@@ -172,6 +181,10 @@ def admin_register():
 @blueprint.route('/register_org')
 @requires_auth
 def org_register():
+
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = '주최자'
+
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -185,6 +198,11 @@ def org_register():
     else:
         is_org = False
 
+    # insert user_no
+    cur.execute('SELECT user_no FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    user_num = cur.fetchone()
+    session[constants.JWT_PAYLOAD]['user_no'] = user_num[0]
+
     return render_template('accounts/register_org.html', is_org=is_org, userinfo=session[constants.PROFILE_KEY])
 
 
@@ -192,6 +210,10 @@ def org_register():
 @blueprint.route('/register_seller')
 @requires_auth
 def seller_register():
+
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = '판매자'
+
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -204,6 +226,11 @@ def seller_register():
         is_seller = True
     else:
         is_seller = False
+    
+    # insert user_no
+    cur.execute('SELECT user_no FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    user_num = cur.fetchone()
+    session[constants.JWT_PAYLOAD]['user_no'] = user_num[0]
 
     return render_template('accounts/register_seller.html', is_seller=is_seller, userinfo=session[constants.PROFILE_KEY])
 
@@ -212,6 +239,10 @@ def seller_register():
 @blueprint.route('/register_buyer')
 @requires_auth
 def buyer_register():
+    
+    # insert user_category
+    session[constants.JWT_PAYLOAD]['user_category'] = '구매자'
+
     db = pymysql.connect(**config)
     cur = db.cursor()
     cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
@@ -224,9 +255,44 @@ def buyer_register():
         is_buyer = True
     else:
         is_buyer = False
+    
+    # insert user_no
+    cur.execute('SELECT user_no FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    user_num = cur.fetchone()
+    session[constants.JWT_PAYLOAD]['user_no'] = user_num[0]
 
     return render_template('accounts/register_buyer.html', is_buyer=is_buyer, userinfo=session[constants.PROFILE_KEY])
 
+
+@blueprint.route('/old_user')
+@requires_auth
+def old_user():
+
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    check = cur.fetchone()
+
+    # 계정이 없는 경우 dashboard로 되돌아감
+    if not check:
+        is_user = False
+        return render_template('accounts/dashboard.html', is_user=is_user)
+    
+    # 계정이 있으므로 insert user_no and user_category
+    cur.execute('SELECT user_no, user_category FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
+    user_num = cur.fetchone()
+    print('============================')
+    print(user_num)
+    print('============================')
+    
+    session[constants.JWT_PAYLOAD]['user_no'] = user_num[0]
+    session[constants.JWT_PAYLOAD]['user_category'] = user_num[1]
+    print('============================')
+    print(session)
+    print('============================')
+    
+    return redirect(url_for('home_blueprint.index'))
+    
 
 @blueprint.route('/logout_auth')
 def auth_logout():
