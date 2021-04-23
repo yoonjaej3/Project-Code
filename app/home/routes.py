@@ -67,7 +67,7 @@ def index2_1_1():
     sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no=%s"
     c.execute(sql)
     data_list = c.fetchall()
-  
+
     # return jsonify(result="success", result2=data_list)
     return render_template('jan_apply.html', data_list=data_list)
 
