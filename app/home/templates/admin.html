@@ -137,13 +137,13 @@
     }
     $.ajax({
       type: 'POST',
-      url: '/myajax_festival_delete',
+      url: '/admin_delete',
       data: JSON.stringify(postdata),
       dataType: 'JSON',
       contentType: "application/json",
       success: function (data) {
         alert("성공");
-        window.location = 'jan_festival_using'
+        window.location = 'admin'
       },
       error: function (request, status, error) {
         alert(error);

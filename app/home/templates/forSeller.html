@@ -42,7 +42,7 @@
             {% for datas in data_list %}
             <tr>
               <td style="display:none">
-                {{ datas[11] }}
+                {{ datas[0] }}
               </td>
               <td>
                 {{ datas[0] }}
@@ -51,7 +51,9 @@
                 {{ datas[1] }}
               </td>
               <td>
-                {{ datas[9] }}
+                {% for i in range(menu|length) %}
+                  {{ menu[i] }}
+                {% endfor %}
               </td>
               <td>
                 {{ datas[4] }}
@@ -66,10 +68,10 @@
                 {{ datas[7] }}
               </td>
               <td>
-                <button type="button" class="btn btn-warning btn-sm" id="execute">{{ datas[10] }}</button>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">{{ datas[8] }}</button>
               </td>
               <td>
-                {{ datas[8] }}
+                {{ datas[9] }}
               </td>
             </tr>
             {% endfor %}
@@ -106,13 +108,13 @@
     }
     $.ajax({
       type: 'POST',
-      url: '/myajax_state_update',
+      url: '/order_state_update',
       data: JSON.stringify(postdata),
       dataType: 'JSON',
       contentType: "application/json",
       success: function (data) {
         alert("성공");
-        window.location = 'jyj_order_detail'
+        window.location = 'forSeller'
       },
       error: function (request, status, error) {
         alert(error);
