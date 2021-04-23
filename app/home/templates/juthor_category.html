@@ -38,27 +38,8 @@
           </div>
           <!-- Light table -->
           <div class="table-responsive">
-            <table id="example-table-1" class="table">
-              <thead class="thead-light">
-                <tr>
-                  <th scope="col" class="sort">음식 Category</th>
-                  <th scope="col" class="sort">음식점 갯수</th>
-                  <th scope="col"></th>
-                </tr>
-              </thead>
-              <tbody class="list">
-                {% for datas in data_list %}
-                <!-- <tr onClick="location.href='/storelist'" style="cursor:pointer;"> -->
-                <tr>
-                    <td>
-                      {{ datas[0] }}<!--카테고리-->
-                    </td>
-                    <td>
-                        {{ datas[1] }} <!--음식점 갯수-->
-                    </td>
-                </tr>
-                {% endfor %}
-              </tbody>
+            <table class="table">
+              
             </table>
           </div>
         </div>
@@ -73,38 +54,4 @@
 {% endblock content %}
 
 <!-- Specific JS goes HERE --> 
-{% block javascripts %}
-<!-- 테이블 row 클릭 시 내보내야함 --> 
-<script type="text/javascript">
-  $("#example-table-1 tr").click(function(){ 	
-  
-      var str = ""
-      var tdArr = new Array();	// 배열 선언
-      
-      // 현재 클릭된 Row(<tr>)
-      var tr = $(this);
-      var td = tr.children();
-      
-      // tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
-      console.log("클릭한 Row의 모든 데이터 : "+tr.text());
-      
-      // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
-      td.each(function(i){
-          tdArr.push(td.eq(i).text());
-      });
-      
-      console.log("배열에 담긴 값 : "+tdArr);
-      
-      // td.eq(index)를 통해 값을 가져올 수도 있다.
-      var category = td.eq(0).text();
-      var store_count = td.eq(1).text();
-      
-      
-      str +=	" * 클릭된 Row의 td값 = 카테고리 : <font color='red'>" + category + "</font>" +
-              ", 가게수 : <font color='red'>" + store_count + "</font>";		
-      
-      $("#ex1_Result1").html(" * 클릭한 Row의 모든 데이터 = " + tr.text());		
-      $("#ex1_Result2").html(str);
-  });
-  </script>
-{% endblock javascripts %}
+{% block javascripts %}{% endblock javascripts %}
