@@ -3,6 +3,8 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from app.base import constants
+from app.base.routes import requires_auth, session
 from app.home import blueprint
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
@@ -16,12 +18,14 @@ config = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
-    'password': '1234',
-    'database': 'mydb'
+    'password':'mysql',
+    'database': 'mydb',
+    'charset': 'utf8'
 }
 
 
 @blueprint.route('/jaesung_festivalList')
+@requires_auth
 def index():
 
     db = pymysql.connect(**config)
@@ -31,12 +35,20 @@ def index():
 
     data_list = cur.fetchall()
 
+    # sql2 = "SELECT * from users"
+    # cur.execute(sql2)
+    user_data = session[constants.JWT_PAYLOAD]['name']
+
+    print(user_data)
     return render_template('jaesung_festivalList.html',
                            segment='index',
-                           data_list=data_list)
+                           data_list=data_list,
+                           user_data=user_data)
 
 
-@blueprint.route('/jan_festival')
+# <<<------------연옥-------------->>>
+@blueprint.route('/admin_index')
+
 def index2():
 
     db = pymysql.connect(**config)
@@ -51,20 +63,33 @@ def index2():
                            data_list=data_list)
 
 
-@blueprint.route('/jan_apply')
-def index2_1():
+@blueprint.route('/jan_apply/', methods=['GET', 'POST'])
+def index2_1_1():
+    db = pymysql.connect(**config)
+    c = db.cursor()
+
+    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no = 3"
+    c.execute(sql)
+    
+    data_list = c.fetchall()
+    
+    return jsonify(result="success", result2=data_list)
+
+
+@blueprint.route('/jan_festival')
+def index2_2():
 
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from organization"
+    sql = "SELECT * from festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
+    
+    return render_template('jan_festival.html', segment='index2_2', data_list=data_list)
 
-    return render_template('jan_apply.html',
-                           segment='index2_1',
-                           data_list=data_list)
 
+# <<<------------현주_1-------------->>>
 
 @blueprint.route('/juthor_dash')
 def index3():
