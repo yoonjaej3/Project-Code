@@ -23,11 +23,15 @@
             <small>판매자 등록</small>
           </div>
           <form role="form">
-            <div class="form-group">
-              <div class="input-group input-group-merge input-group-alternative mb-3">
-                <input class="form-control" id="festival_id" name="festival_id" placeholder="페스티벌 아이디">
-              </div>
-            </div>
+            <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="festival">
+              <option selected>페스티벌 선택</option>
+              {% for datas in data_list %}
+              <option>{{ datas[0] }}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <br>
+
             <div class="form-group">
               <div class="input-group input-group-merge input-group-alternative mb-3">
                 <input class="form-control" id="store_name" name="store_name" placeholder="가게 이름">
@@ -70,8 +74,13 @@
 
 
 <script>
+  var festival_name
+  $("#festival").change(function () {
+
+    festival_name = $(this).val()
+    console.log(festival_name)
+  })
   $('#execute').click(function () {
-    var festival_id = $('#festival_id').val();
     var store_name = $('#store_name').val();
     var store_description = $('#store_description').val();
     var contact_number = $('#contact_number').val();
@@ -80,7 +89,7 @@
     var location_number = $('#location_number').val();
 
     var postdata = {
-      'festival_id': festival_id, 'store_name': store_name, 'store_description': store_description, 'contact_number': contact_number,
+      'festival_name': festival_name, 'store_name': store_name, 'store_description': store_description, 'contact_number': contact_number,
       'category': category, 'license_number': license_number, 'location_number': location_number
     }
     $.ajax({
@@ -97,8 +106,16 @@
       }
     })
   })
+
+  $("[id^=selected]").click(function () {
+
+    console.log("확인")
+
+  })
 </script>
+
+
 {% endblock content %}
 
-<!-- Specific JS goes HERE -->
+<!— Specific JS goes HERE —>
 {% block javascripts %}{% endblock javascripts %}

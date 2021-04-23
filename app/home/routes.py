@@ -12,6 +12,7 @@ from jinja2 import TemplateNotFound
 import pymysql
 from datetime import datetime
 
+
 config = {
     'host': '127.0.0.1',
     'port': 13306,
@@ -48,16 +49,20 @@ def get_id():
 # <<<------------재성-------------->>>
 @blueprint.route('/jaesung_festivalList')
 def index():
+    # 현재 로그인한 user_no
+    user_no = get_id()
 
     db = pymysql.connect(**config)
     cur = db.cursor()
+    
     sql = "SELECT * from festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
+
     user_data = session[constants.JWT_PAYLOAD]['name']
 
-    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list, user_data=user_data)
+    return render_template('jaesung_festivalList.html', data_list=data_list, user_data=user_data, user_no=user_no[0])
 
 
 # <<<------------연옥-------------->>>
@@ -168,7 +173,7 @@ def index3():
 def category():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = '''select unique category, count(category) as '가게 수'
+    sql = '''select category, count(category) as '가게 수'
              from store
              group by category'''
     cur.execute(sql)
@@ -445,7 +450,6 @@ def orderdetail_insert(store_id, data, newID):
 
 # <<<-----------윤재--------------->>>
 @blueprint.route('/jyj_seller_info')
-@requires_auth
 def store_info():
 
     db = pymysql.connect(**config)
@@ -459,9 +463,8 @@ def store_info():
 
 
 @blueprint.route('/jyj_order_detail')
-@requires_auth
 def order_detail():
-    data = get_id()
+
     #  - 구매자 이름(users.user_name) one
     #  - 구매자 연락처(users.phone_number) one
     #  - 음식 이름(menu.menu_name)  two 3.store_id
@@ -473,17 +476,25 @@ def order_detail():
     #  - 요청 사항(orders.requests) three 1.user_id
     db = pymysql.connect(**config)
     cur = db.cursor()
+    data_list_one = ()
     data_list_two = ()
     data_list_four = ()
     data_list_three = ()
+    user_no_list = []
+    sql = "SELECT user_no,user_name,phone_number from users"
+    cur.execute(sql)
+    data_list_one = cur.fetchall()
+
+    for i in data_list_one:
+        user_no_list.append(i[0])
 
     for i in user_no_list:
-        sql = '''SELECT A.user_name,A.phone_number,B.store_id,B.order_id,B.order_time,B.total_price,B.total_qty,B.payment,B.requests 
+        sql = '''SELECT A.user_name,A.phone_number,B.store_id,B.order_id,B.last_modify,B.total_price,B.total_qty,B.payment,B.requests 
         from users A INNER JOIN orders B
         ON A.user_no=B.user_no
         where B.user_no=%s
         '''
-        cur.execute(sql, [data[0]])
+        cur.execute(sql, i)
         data_list_two += cur.fetchall()  #1~4
 
     for i in data_list_two:
@@ -504,7 +515,6 @@ def order_detail():
 
 
 @blueprint.route('/jyj_seller')
-@requires_auth
 def jyj_seller():
 
     #  - 구매자 이름(users.user_name) one
@@ -552,7 +562,6 @@ def jyj_seller():
 
 
 @blueprint.route('/jyj_seller_apply')
-@requires_auth
 def store_save():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -564,7 +573,6 @@ def store_save():
 
 
 @blueprint.route('/myajax_store_insert', methods=['POST'])
-@requires_auth
 def myajax():
 
     json_data = request.get_json()
@@ -592,7 +600,6 @@ def myajax():
 
 
 @blueprint.route('/myajax_store_delete', methods=['POST'])
-@requires_auth
 def myajax_delete():
 
     json_data = request.get_json()
@@ -615,7 +622,6 @@ def myajax_delete():
 
 
 @blueprint.route('/myajax_state_update', methods=['POST'])
-@requires_auth
 def myajax_state_update():
 
     json_data = request.get_json()
@@ -629,12 +635,20 @@ def myajax_state_update():
     data_list_one = cur.fetchall()
     for i in data_list_one:
         if (i == '주문중', ):
-            print("주문완료")
             sql = '''Update orders SET order_state=%s
             where order_id=%s
             '''
             cur.execute(sql, ['주문완료', json_data['order_id']])
             db.commit()
+    # cur.execute(sql, [json_data['order_state']])
+    # if(json_data['order_state']=='주문중')
+    #     json_data['order_state']=="주문완료"
+    # sql = '''Update orders SET order_state=%s
+    # '''
+    # cur.execute(sql, [json_data['order_state']])
+
+    # print(json_data['order_id'])
+    # db.commit()
 
     return jsonify(result="success", result2=json_data)
 
