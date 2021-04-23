@@ -3,15 +3,13 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from app.base import constants
+from app.base.routes import requires_auth, session
 from app.home import blueprint
-
 from flask import render_template, request, jsonify, redirect
-from flask_login import login_required, current_user
-from app import login_manager
 from jinja2 import TemplateNotFound
+# import flask_restful
 import pymysql
-import json
-import MySQLdb
 from datetime import datetime
 
 config = {
@@ -31,13 +29,13 @@ def get_id():
             sql = "SELECT user_no, user_category FROM users WHERE email = %s"
             cur.execute(sql, [session[constants.JWT_PAYLOAD]['email']])
 
-        user_no = cursor.fetchone()
+        user_no = cur.fetchone()
 
         with conn.cursor() as cur:
             sql = "SELECT order_id FROM orders WHERE user_no=%s"
             cur.execute(sql, [user_no[0]])
 
-        order_id = cursor.fetchone()
+        order_id = cur.fetchone()
 
     finally:
         data_list = [user_no[0], user_no[1], order_id]
@@ -57,8 +55,9 @@ def index():
     cur.execute(sql)
 
     data_list = cur.fetchall()
+    user_data = session[constants.JWT_PAYLOAD]['name']
 
-    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list)
+    return render_template('jaesung_festivalList.html', segment='index', data_list=data_list, user_data=user_data)
 
 
 # <<<------------연옥-------------->>>
@@ -353,15 +352,19 @@ def credit_get():
             sql = "SELECT total_price FROM orders WHERE user_no=%s"
             cursor.execute(sql, [data[0]])
 
-        conn.commit()
+        price_data = cursor.fetchall()
 
         with conn.cursor() as cursor:
             sql = '''SELECT order_state FROM orders WHERE order_id=%s'''
             cursor.execute(sql, [data[1]])
 
-        conn.commit()
+        order_state = cursor.fetchall()
 
     finally:
+        data_list = []
+        for i, j, k in zip(store_data, price_data,order_state):
+            data_list.append(i + j + k)
+
         conn.close()
 
     return render_template('jhj_credit.html', data_list=data_list)
