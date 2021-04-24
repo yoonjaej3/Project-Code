@@ -18,6 +18,10 @@
         <div class="row align-items-center">
           <div class="col">
             <h3 class="mb-0">구매자 정보</h3>
+            <div class="btn-toolbar  float-right">
+              <th><button type="button" class="btn btn-primary btn-sm" id="add"> 가게 정보 추가하기 </button></th>
+              <th><button type="button" class="btn btn-primary btn-sm " id="add2"> 메뉴 추가하기 </button></th>
+            </div>
           </div>
         </div>
       </div>
@@ -36,41 +40,40 @@
               <th scope="col">결제 종류</th>
               <th scope="col">상태</th>
               <th scope="col">요청 사항</th>
-              <th scope="col">삭제</th>
             </tr>
           </thead>
           <tbody>
-            {% for datas in data_list %}
+            {% for i in range(data_list|length) %}
             <tr>
-              <td>
-                {{ datas[0] }}
+              <td style="display:none">
+                {{ id_list[i] }}
               </td>
               <td>
-                {{ datas[1] }}
+                {{ data_list[i][0] }}
               </td>
               <td>
-                {{ datas[9] }}
+                {{ data_list[i][1] }}
               </td>
               <td>
-                {{ datas[5] }}
+                {{data_list2[i]}}
               </td>
               <td>
-                {{ datas[6] }}
+                {{ data_list[i][4] }}
               </td>
               <td>
-                {{ datas[7] }}
+                {{ data_list[i][5] }}
               </td>
               <td>
-                {{ datas[8] }}
+                {{ data_list[i][6] }}
               </td>
               <td>
-                {{ datas[11] }}
+                {{ data_list[i][7] }}
               </td>
               <td>
-                {{ datas[9] }}
+                <button type="button" class="btn btn-warning btn-sm" id="execute">{{ data_list[i][8] }}</button>
               </td>
               <td>
-                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
+                {{ data_list[i][9] }}
               </td>
             </tr>
             {% endfor %}
@@ -95,22 +98,35 @@
 <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
 
 <script>
+  $("[id^=add").click(function () {
+    window.location = 'seller_store_add'
 
-  $('#execute').click(function () {
+  })
+  $("[id^=add2").click(function () {
+    window.location = 'menu_add'
 
-    var store_id = $('#store_id').text();
+  })
+  $("[id^=execute]").click(function () {
+
+    var cell = $(this).closest('td')
+    
+    var cellIndex = cell[0].parentNode.cells[0]
+    console.log(order_id)
+    var order_id = cellIndex.firstChild.data.split("\n").join('');
+    console.log(order_id)
     var postdata = {
-      'store_id': store_id
+      'order_id': order_id
     }
+    
     $.ajax({
       type: 'POST',
-      url: '/myajax_store_delete',
+      url: '/order_state_update',
       data: JSON.stringify(postdata),
       dataType: 'JSON',
       contentType: "application/json",
       success: function (data) {
         alert("성공");
-        window.location = 'jyj_order_detail'
+        window.location = 'forSeller'
       },
       error: function (request, status, error) {
         alert(error);
