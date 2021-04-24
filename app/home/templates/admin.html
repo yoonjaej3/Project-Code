@@ -17,7 +17,7 @@
       <div class="card-header border-0">
         <div class="row align-items-center">
           <div class="col">
-            <h3 class="mb-0">구매자 정보</h3>
+            <h3 class="mb-0">관리자 메인 리스트</h3>
           </div>
         </div>
       </div>
@@ -27,22 +27,24 @@
           <thead class="thead-light">
 
             <tr>
-              <th scope="col">구매자 이름</th>
-              <th scope="col">구매자 연락처</th>
-              <th scope="col">음식 이름</th>
-              <th scope="col">주문 시간</th>
-              <th scope="col">총 가격</th>
-              <th scope="col">음식 수량</th>
-              <th scope="col">결제 종류</th>
-              <th scope="col">상태</th>
-              <th scope="col">요청 사항</th>
+              <h5 class="mb-0">주최기관 리스트</h5>
+              <th scope="col">주체기관 명</th>
+              <th scope="col">담당자</th>
+              <th scope="col">담당자 연락처</th>
+              <th scope="col">페스티벌 명</th>
+              <th scope="col">기간</th>
+              <th scope="col">장소</th>
+              <th scope="col">삭제</th>
             </tr>
           </thead>
           <tbody>
             {% for datas in data_list %}
             <tr>
               <td style="display:none">
-                {{ datas[11] }}
+                {{ datas[7] }}
+              </td>
+              <td>
+                {{ datas[2] }}
               </td>
               <td>
                 {{ datas[0] }}
@@ -51,7 +53,41 @@
                 {{ datas[1] }}
               </td>
               <td>
-                {{ datas[9] }}
+                {{ datas[3] }}
+              </td>
+              <td>
+                {{ datas[4] }}
+              </td>
+              <td>
+                {{ datas[5] }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <br>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush">
+          <thead class="thead-light">
+            <tr>
+              <h5 class="mb-0">페스티벌 리스트</h5>
+              <th scope="col">페스티벌 명</th>
+              <th scope="col">기간</th>
+              <th scope="col">장소</th>
+              <th scope="col">URL</th>
+              <th scope="col">정보 조회 바로가기</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for datas in data_list %}
+            <tr>
+              <td>
+                {{ datas[3] }}
               </td>
               <td>
                 {{ datas[4] }}
@@ -63,13 +99,7 @@
                 {{ datas[6] }}
               </td>
               <td>
-                {{ datas[7] }}
-              </td>
-              <td>
-                <button type="button" class="btn btn-warning btn-sm" id="execute">{{ datas[10] }}</button>
-              </td>
-              <td>
-                {{ datas[8] }}
+                <button type="button" class="btn btn-primary btn-sm" id="go">바로가기</button>
               </td>
             </tr>
             {% endfor %}
@@ -98,27 +128,38 @@
   $("[id^=execute]").click(function () {
 
     var cell = $(this).closest('td')
+    console.log(cell[0].parentNode)
     var cellIndex = cell[0].parentNode.cells[0]
-    var order_id = cellIndex.firstChild.data.split(" ").join('');
-    console.log(order_id)
+    console.log(cellIndex)
+    var festival_id = cellIndex.firstChild.data.split(" ").join('');
+    console.log(festival_id)
     var postdata = {
-      'order_id': order_id
+      'festival_id': festival_id
     }
     $.ajax({
       type: 'POST',
-      url: '/myajax_state_update',
+      url: '/admin_delete',
       data: JSON.stringify(postdata),
       dataType: 'JSON',
       contentType: "application/json",
       success: function (data) {
         alert("성공");
-        window.location = 'jyj_order_detail'
+        window.location = 'admin'
       },
       error: function (request, status, error) {
         alert(error);
         console.log(postdata);
       }
     })
+  })
+
+  $("[id^=go").click(function () {
+
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[3]
+    var url = cellIndex.firstChild.data.split(" ").join('');
+    window.open(url);
+
   })
 </script>
 {% endblock javascripts %}
