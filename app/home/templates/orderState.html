@@ -12,15 +12,9 @@
             <h6 class="h2 text-white d-inline-block mb-0">Tables</h6>
             <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                <li class="breadcrumb-item"><a href="#">Tables</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Tables</li>
+                <li class="breadcrumb-item"><a href="/index_login"><i class="fas fa-home"></i></a></li>
               </ol>
             </nav>
-          </div>
-          <div class="col-lg-6 col-5 text-right">
-            <a href="#" class="btn btn-sm btn-neutral">New</a>
-            <a href="#" class="btn btn-sm btn-neutral">Filters</a>
           </div>
         </div>
       </div>
@@ -48,21 +42,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  {% for datas in data_list %}
-                  <th scope="row">
-                    {{ datas[0] }}
-                  </th>
-                  <td>
-                    {{ datas[2] }}
+                {% for datas in data_list %}
+                  <tr>
+                    <td>
+                      {{ datas[0] }}
+                    </td>
+                    <td>
+                      {{ datas[2] }}
+                    </td>
+                    <td>
+                      {{ datas[1] }}
+                    </td>
+                    <td>
+                      {{ datas[3] }}
                   </td>
-                  <td>
-                    {{ datas[1] }}
-                  </td>
-                  <td>
-                    {{ datas[3] }}
-                  </td>
-                  {% endfor %}
+                {% endfor %}
                 </tr>
               </tbody>
             </table>

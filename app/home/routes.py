@@ -68,61 +68,82 @@ def index():
     return render_template('index_login.html', data_list=data_list, user_data=user_data, user_no=user_no[0])
 
 
-@blueprint.route('/jan_festival')
-def index2_2():
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT A.order_id,A.total_price,B.festival_id,B.festival_name from orders A INNER JOIN festival B ON A.user_no=B.user_no"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-    
-    
-    return jsonify(data_list)
-
-
 ###############################################
 ###############    관리자    ##################
 ###############################################
 # 관리자 화면
 @blueprint.route('/admin')
-def admin_festival_using():
-    
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = '''SELECT A.user_name,A.phone_number,B.company_name,B.festival_name,B.period,B.location,B.url,B.festival_id
-        from users A INNER JOIN festival B
-        ON A.user_no=B.user_no
-        '''
-    cur.execute(sql)
+def admin_festival_using():    
+    conn = pymysql.connect(**config)
 
-    data_list = cur.fetchall()
+    try:
+        with conn.cursor() as cursor:
+            sql = '''SELECT A.user_name,A.phone_number,B.company_name,B.festival_name,B.period,B.location,B.url,B.festival_id
+                        from users A INNER JOIN festival B
+                        ON A.user_no=B.user_no'''
+
+            cursor.execute(sql)
+
+        data_list = cursor.fetchall()
+
+        # 페스티벌 이름
+        with conn.cursor() as cursor:
+            sql = "SELECT festival_id, festival_name FROM festival"
+            cursor.execute(sql)
+
+        festival = cursor.fetchall()
+        print(festival)
+        # 각 페스티벌 참여 가게 갯수
+        with conn.cursor() as cursor:
+            sql = "SELECT COUNT(festival_id) FROM store GROUP BY festival_id"
+            cursor.execute(sql)
+
+        store_count = cursor.fetchall()
+
+        with conn.cursor() as cursor:
+            sql = "SELECT store_id FROM store WHERE festival_id=%s"
+            store_id = []
+            for i in range(len(festival)):
+                cursor.execute(sql, [festival[i][0]])
+
+                store_id += [cursor.fetchall()]
+        print(store_id)
+        # 참여가게 총 매출
+        with conn.cursor() as cursor:
+            sql = "SELECT SUM(total_price) FROM orders where store_id=%s"
+            total_price = []
+            for i in range(len(store_id)):
+                for j in range(len(store_id[i])):
+                    cursor.execute(sql, [store_id[i][j]])
+
+                    total_price += [cursor.fetchone()]
+
+                    # for k in range(len(store_id)):
+                    #     for l in range(len(store_id[j])):
+                    #         print(total_price[l])
+                    #     print("==========")
+        print(total_price)
+    finally:
+        # festival_data = []
+        # for i, j, k in zip(festival, store_count, total_price):
+        #     festival_data.append(i + j + k)
+        # print(festival_data)
+        conn.close()
+
     return render_template('admin.html', data_list=data_list)
-
-
-# 관리자 측면에서 전체 페스티벌
-@blueprint.route('/admin')
-def admin_index():
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT * from festival"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-
-    return render_template('admin.html', segment='index2', data_list=data_list)
 
 
 # 관리자 화면 데이터 삭제
 @blueprint.route('/admin_delete', methods=['POST'])
 def admin_festival_delete():
     json_data = request.get_json()
+
     db = pymysql.connect(**config)
     cur = db.cursor()
-    print(json_data)
-    data_store_id = {}
+    festival_id = json_data['festival_id'].strip('\n')
+
     sql = "SELECT store_id from store where festival_id=%s"
-    cur.execute(sql, [json_data['festival_id']])
+    cur.execute(sql, [festival_id])
     data_store_id = cur.fetchall()
 
     for i in data_store_id:
@@ -134,10 +155,10 @@ def admin_festival_delete():
         cur.execute(sql, [i])
 
     sql = '''Delete from store where festival_id=%s'''
-    cur.execute(sql, [json_data['festival_id']])
+    cur.execute(sql, [festival_id])
 
     sql = '''Delete from festival where festival_id=%s'''
-    cur.execute(sql, [json_data['festival_id']])
+    cur.execute(sql, [festival_id])
 
     db.commit()
 
@@ -173,56 +194,46 @@ def menulist(id):
 @requires_auth
 def order_get():
     conn = pymysql.connect(**config)
+    cur = conn.cursor()
     data = get_id()
 
-    try:
-        with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE order_id=%s"
-            cursor.execute(sql, [data[2]])
+    sql = "SELECT total_price FROM orders WHERE order_id=%s"
+    cur.execute(sql, [data[2]])
 
-        data_list = cursor.fetchall()
-
-    finally:
-        conn.close()
+    data_list = cursor.fetchall()
 
     return render_template('order.html', data_list=data_list)
 
 
 # 고객 주문 상세 페이지
-@blueprint.route('/order_sate')
+@blueprint.route('/orderState')
 @requires_auth
-def credit_get():
+def order_sate():
     conn = pymysql.connect(**config)
     data = get_id()
 
     try:
         with conn.cursor() as cursor:
             sql = '''SELECT b.store_name, b.location_number FROM orders a LEFT JOIN store b 
-                        ON a.store_id = b.store_id WHERE a.user_no=%s'''
+                        ON a.store_id = b.store_id WHERE a.user_no=%s ORDER BY a.created_at DESC'''
             cursor.execute(sql, [data[0]])
 
         store_data = cursor.fetchall()
-
+        print(store_data)
         with conn.cursor() as cursor:
-            sql = "SELECT total_price FROM orders WHERE user_no=%s"
+            sql = "SELECT total_price, order_state FROM orders WHERE user_no=%s ORDER BY created_at DESC"
             cursor.execute(sql, [data[0]])
 
-        price_data = cursor.fetchall()
-
-        with conn.cursor() as cursor:
-            sql = '''SELECT order_state FROM orders WHERE order_id=%s'''
-            cursor.execute(sql, [data[2]])
-
-        order_state = cursor.fetchall()
-
+        order_data = cursor.fetchall()
+        print(order_data)
     finally:
         data_list = []
-        for i, j, k in zip(store_data, price_data, order_state):
-            data_list.append(i + j + k)
+        for i, j in zip(store_data, order_data):
+            data_list.append(i + j)
 
         conn.close()
         print(data_list)
-    return render_template('order_sate.html', data_list=data_list)
+    return render_template('orderState.html', data_list=data_list)
 
 
 # 메뉴 가져오는 함수
@@ -346,7 +357,7 @@ def orderdetail_insert(store_id, data, newID):
 ###############################################
 # 현재 접속한 주최자의 페스티벌에 등록된 가게 리스트
 @blueprint.route('/manager')
-def jan_festival_using():
+def manager_festival():
     data = get_id()
     cur_id = data[0]
 
@@ -367,7 +378,6 @@ def jan_festival_using():
     data_list2 = []
 
     for i in festival_id:
-
         sql = "SELECT * from store where festival_id=%s"
         cur.execute(sql, [i[0]])
         data_list2 += cur.fetchall()
@@ -429,19 +439,21 @@ def order_detail():
         # 주문한 유저 정보
         with conn.cursor() as cursor:
             sql = '''SELECT user_name, phone_number FROM users WHERE user_no=%s'''
-            cursor.execute(sql, [data_two[0][1]])
 
-        data_two_1 = cursor.fetchall()
+            data_two_1 = []
+            for i in range(len(data_two)):
+                cursor.execute(sql, [data_two[i][1]])
+                data_two_1 += cursor.fetchall()
 
-        # 주문한 메뉴아이디, 수량
+        # 주문한 메뉴아이디
         with conn.cursor() as cursor:
-            sql = '''SELECT menu_id, food_qty FROM order_detail WHERE order_id=%s'''
-            
+            sql = '''SELECT menu_id FROM order_detail WHERE order_id=%s'''
+
             if len(data_two) != 1:
-                data_three = ()
+                data_three = []
                 for i in range(len(data_two)):
                     cursor.execute(sql, data_two[i][0])
-                    data_three += cursor.fetchall()
+                    data_three.append(cursor.fetchall())
             else:
                 cursor.execute(sql, data_two[0][0])
                 data_three = cursor.fetchall()
@@ -449,17 +461,27 @@ def order_detail():
         # 주문한 메뉴이름
         with conn.cursor() as cursor:
             sql = "SELECT menu_name FROM menu WHERE menu_id=%s"
-            
+
             if len(data_three) != 1:
-                data_four = ()
+                data_four = []  #리스트
+                data_five = []  #리스트
                 for i in range(len(data_three)):
-                    cursor.execute(sql, data_three[i][0])
-                    data_four += cursor.fetchone()
-        
+                    for j in range(len(data_three[i])):
+                        cursor.execute(sql, data_three[i][j])
+                        data_five.append(cursor.fetchone())
+
+                    data_four.append(data_five)
+
             else:
                 cursor.execute(sql, data_three[0][0])
                 data_four = cursor.fetchall()
 
+        # print("1번쨰 ", data_two_1)
+        # print()
+        # print("2번쨰 ", data_two)
+        # print()
+        # print("3번쨰 ", data_four)
+        # print()
     finally:
         data_list = []
         for i, j in zip(data_two_1, data_two):
@@ -467,21 +489,10 @@ def order_detail():
 
         conn.close()
 
-    return render_template('forSeller.html', data_list=data_list, menu=data_four)
-
-
-@blueprint.route('/jan_apply', methods=['GET', 'POST'])
-def index2_1_1():
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    data = get_id()
-
-    sql = "SELECT * FROM festival LEFT OUTER JOIN users ON festival.user_no=users.user_no where users.user_no=%s"
-
-    cur.execute(sql, [data[0]])
-    data_list = cur.fetchall()
-  
-    return render_template('jan_apply.html', segment='index2_1_1', data_list=data_list)
+    print(data_four)
+    return render_template('forSeller.html',
+                           data_list=data_list,
+                           menu=data_four)
 
     
 @blueprint.route('/jyj_seller_info')
@@ -532,17 +543,6 @@ def jyj_seller():
         data_list.append([i, price[i], qty[i]])
 
     return render_template('jyj_seller.html', data_list=data_list)
-
-
-@blueprint.route('/jyj_seller_apply')
-def store_save():
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-    sql = "SELECT festival_name from festival"
-    cur.execute(sql)
-
-    data_list = cur.fetchall()
-    return render_template('jyj_seller_apply.html', data_list=data_list)
 
 
 # 판매자 정보등록 
