@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from app.base import constants
 from app.base.routes import requires_auth, session
 from app.home import blueprint
-from flask import render_template, request, jsonify, redirect
+from flask import render_template, request, jsonify, redirect, url_for
 from jinja2 import TemplateNotFound
 # import flask_restful
 import pymysql
@@ -92,7 +92,7 @@ def admin_festival_using():
             cursor.execute(sql)
 
         festival = cursor.fetchall()
-        print(festival)
+
         # 각 페스티벌 참여 가게 갯수
         with conn.cursor() as cursor:
             sql = "SELECT COUNT(festival_id) FROM store GROUP BY festival_id"
@@ -100,6 +100,7 @@ def admin_festival_using():
 
         store_count = cursor.fetchall()
 
+        # 각 페스티벌의 가게
         with conn.cursor() as cursor:
             sql = "SELECT store_id FROM store WHERE festival_id=%s"
             store_id = []
@@ -107,30 +108,28 @@ def admin_festival_using():
                 cursor.execute(sql, [festival[i][0]])
 
                 store_id += [cursor.fetchall()]
-        print(store_id)
-        # 참여가게 총 매출
+
+        # 참여가게 총 주문 건수
         with conn.cursor() as cursor:
-            sql = "SELECT SUM(total_price) FROM orders where store_id=%s"
-            total_price = []
+            sql = "SELECT COUNT(order_id) FROM orders WHERE store_id=%s"
+            total_count = []
             for i in range(len(store_id)):
+                price = []
                 for j in range(len(store_id[i])):
                     cursor.execute(sql, [store_id[i][j]])
 
-                    total_price += [cursor.fetchone()]
+                    price.append(sum(cursor.fetchone()))
 
-                    # for k in range(len(store_id)):
-                    #     for l in range(len(store_id[j])):
-                    #         print(total_price[l])
-                    #     print("==========")
-        print(total_price)
+                total_count.append((sum(price),))
+                
     finally:
-        # festival_data = []
-        # for i, j, k in zip(festival, store_count, total_price):
-        #     festival_data.append(i + j + k)
-        # print(festival_data)
+        festival_data = []
+        for i, j, k in zip(festival, store_count, total_count):
+            festival_data.append(i + j + k)
+
         conn.close()
 
-    return render_template('admin.html', data_list=data_list)
+    return render_template('admin.html', data_list=data_list, festival_data=festival_data)
 
 
 # 관리자 화면 데이터 삭제
@@ -194,11 +193,11 @@ def menulist(id):
 @requires_auth
 def order_get():
     conn = pymysql.connect(**config)
-    cur = conn.cursor()
+    cursor = conn.cursor()
     data = get_id()
 
     sql = "SELECT total_price FROM orders WHERE order_id=%s"
-    cur.execute(sql, [data[2]])
+    cursor.execute(sql, [data[2]])
 
     data_list = cursor.fetchall()
 
@@ -334,9 +333,7 @@ def orderdetail_insert(store_id, data, newID):
             for i in value:
                 cnt = int(i)
  
-
             cur.execute("select menu_price from menu where menu_id=%s", key)
-            print(type(key))
             a = cur.fetchall()
 
             # 가격 뽑아내기
@@ -372,17 +369,18 @@ def manager_festival():
 
     data_list = cur.fetchall()
 
-    sql = "SELECT festival_id from festival where user_no=%s"
+    sql = "SELECT distinct(festival_id) from store where user_no=%s"
     cur.execute(sql, [cur_id])
     festival_id = cur.fetchall()
     data_list2 = []
-
     for i in festival_id:
         sql = "SELECT * from store where festival_id=%s"
         cur.execute(sql, [i[0]])
         data_list2 += cur.fetchall()
 
-    return render_template('manager.html', data_list=data_list, data_list2=data_list2)
+    return render_template('manager.html',
+                           data_list=data_list,
+                           data_list2=data_list2)
 
 
 # 주최자 페스티벌 등록 함수
@@ -409,6 +407,23 @@ def manager_festival_insert():
     return jsonify(result="success", result2=json_data)
 
 
+# 주최자의 페스티벌 리스트 삭제
+@blueprint.route('/manager_festival_delete', methods=['POST'])
+def manager_festival_delete():
+
+    json_data = request.get_json()
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+
+    sql = '''Delete from festival where festival_id=%s 
+    '''
+    cur.execute(sql, [json_data['festival_id']])
+
+    db.commit()
+
+    return jsonify(result="success", result2=json_data)
+
+
 ###############################################
 ###########        판매자         #############
 ###############################################
@@ -417,159 +432,180 @@ def manager_festival_insert():
 def order_detail():
     conn = pymysql.connect(**config)
     data = get_id()
+    par_id = []
+    data_list_two = ()
+    price = {}
+    qty = {}
 
-    try:
-        # 현재 접속한 판매자의 정보
-        with conn.cursor() as cursor:
-            sql = '''SELECT store_id FROM users a LEFT JOIN store b 
-                        ON a.user_no=b.user_no 
-                        WHERE a.user_no=%s'''
-            cursor.execute(sql, [data[0]])
+    # 접속한 유저의 스토어넘버
+    with conn.cursor() as cursor:
+        sql = '''SELECT store_id FROM store WHERE user_no=%s'''
+        cursor.execute(sql, [data[0]])
 
-        data_one = cursor.fetchone()
+    store_id = cursor.fetchone()
+    print(store_id)
 
-        # 판매자에게 주문한 order list
-        with conn.cursor() as cursor:
-            sql = '''SELECT order_id, user_no, created_at, total_price, total_qty, payment, order_state, requests
-                    FROM orders WHERE store_id=%s'''
-            cursor.execute(sql, [data_one[0]])
+    if store_id is not None:
+        try:
+            # 현재 접속한 판매자의 정보
+            with conn.cursor() as cursor:
+                sql = '''SELECT store_id FROM users a LEFT JOIN store b 
+                            ON a.user_no=b.user_no 
+                            WHERE a.user_no=%s'''
+                cursor.execute(sql, [data[0]])
 
-        data_two = cursor.fetchall()
+            data_one = cursor.fetchone()
 
-        # 주문한 유저 정보
-        with conn.cursor() as cursor:
-            sql = '''SELECT user_name, phone_number FROM users WHERE user_no=%s'''
+            # 판매자에게 주문한 order list
+            with conn.cursor() as cursor:
+                sql = '''SELECT order_id, user_no, created_at, total_price, total_qty, payment, order_state, requests
+                        FROM orders WHERE store_id=%s'''
+                cursor.execute(sql, [data_one[0]])
 
-            data_two_1 = []
-            for i in range(len(data_two)):
-                cursor.execute(sql, [data_two[i][1]])
-                data_two_1 += cursor.fetchall()
+            data_two = cursor.fetchall()
 
-        # 주문한 메뉴아이디
-        with conn.cursor() as cursor:
-            sql = '''SELECT menu_id FROM order_detail WHERE order_id=%s'''
+            # 주문한 유저 정보
+            with conn.cursor() as cursor:
+                sql = '''SELECT user_name, phone_number FROM users WHERE user_no=%s'''
 
-            if len(data_two) != 1:
-                data_three = []
+                data_two_1 = []
                 for i in range(len(data_two)):
-                    cursor.execute(sql, data_two[i][0])
-                    data_three.append(cursor.fetchall())
-            else:
-                cursor.execute(sql, data_two[0][0])
-                data_three = cursor.fetchall()
+                    cursor.execute(sql, [data_two[i][1]])
+                    data_two_1 += cursor.fetchall()
 
-        # 주문한 메뉴이름
-        with conn.cursor() as cursor:
-            sql = "SELECT menu_name FROM menu WHERE menu_id=%s"
+            # 주문한 메뉴아이디
+            with conn.cursor() as cursor:
+                sql = '''SELECT menu_id FROM order_detail WHERE order_id=%s'''
 
-            if len(data_three) != 1:
-                data_four = []  #리스트
-                data_five = []  #리스트
-                for i in range(len(data_three)):
-                    for j in range(len(data_three[i])):
-                        cursor.execute(sql, data_three[i][j])
-                        data_five.append(cursor.fetchone())
+                if len(data_two) != 1:
+                    data_three = []
+                    for i in range(len(data_two)):
+                        cursor.execute(sql, data_two[i][0])
+                        par_id.append(data_two[i][0])
+                        data_three.append(cursor.fetchall())
+                else:
+                    cursor.execute(sql, data_two[0][0])
+                    par_id.append(data_two[0][0])
+                    data_three = [cursor.fetchall()]
 
-                    data_four.append(data_five)
+            # 주문한 메뉴이름
+            with conn.cursor() as cursor:
+                sql = "SELECT menu_name FROM menu WHERE menu_id=%s"
 
-            else:
-                cursor.execute(sql, data_three[0][0])
-                data_four = cursor.fetchall()
+                if len(data_three) != 1:
+                    data_four = []  #리스트
+                    for i in range(len(data_three)):
+                        data_five = []  #리스트
 
-        # print("1번쨰 ", data_two_1)
-        # print()
-        # print("2번쨰 ", data_two)
-        # print()
-        # print("3번쨰 ", data_four)
-        # print()
-    finally:
-        data_list = []
-        for i, j in zip(data_two_1, data_two):
-            data_list.append(i + j)
+                        for j in range(len(data_three[i])):
+                            cursor.execute(sql, data_three[i][j])
+                            data_five.append(cursor.fetchone())
 
-        conn.close()
+                        data_four.append(data_five)
 
-    print(data_four)
-    return render_template('forSeller.html',
-                           data_list=data_list,
-                           menu=data_four)
+                else:
+                    cursor.execute(sql, data_three[0][0])
+                    data_four = (cursor.fetchall())
 
+
+        finally:
+            menu_list = []
+            par_first = []
+            par_second = []
+            data_list = ()
+            menu = ()
+            
+            for i, j, k in zip(data_two_1, data_two, range(len(data_four))):
+                temp = []
+                temp = i + j
+                m_string = ()
+
+                for h in data_four[k]:
+                    if len(data_four) == 1:
+                        m_string = (h)
+                    else:
+                        m_string += h
+
+                par_first.append(temp)
+                par_second.append(m_string)
+
+            conn.close()
+
+            return render_template('forSeller.html',
+                                data_list=par_first,
+                                data_list2=par_second,
+                                id_list=par_id)
     
-@blueprint.route('/jyj_seller_info')
-def store_info():
+    else:
+        return redirect('seller_store_add')
+    
 
+#판매자가 가게 등록할떄 축체 dropdown list
+@blueprint.route('/seller_store_add')
+def store_save():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = "SELECT * from store"
+    sql = "SELECT festival_name from festival"
     cur.execute(sql)
 
     data_list = cur.fetchall()
-
-    return render_template('jyj_seller_info.html', data_list=data_list)
-
-
-@blueprint.route('/jyj_seller')
-def jyj_seller():
-    db = pymysql.connect(**config)
-    cur = db.cursor()
-
-    data_list_two = ()
-
-    sql = '''SELECT A.menu_name,B.total_price,B.total_qty
-    from menu A INNER JOIN orders B
-    ON A.store_id=B.store_id
-    '''
-    cur.execute(sql)
-    data_list_two += cur.fetchall()  #1~4
-    price = {}
-    qty = {}
-    menu_list = []
-    for i in data_list_two:
-        if (price.get(i[0]) == None):
-            price[i[0]] = i[1]
-            menu_list.append(i[0])
-        else:
-            price[i[0]] += i[1]
-
-    for i in data_list_two:
-        if (qty.get(i[0]) == None):
-            qty[i[0]] = i[2]
-        else:
-            qty[i[0]] += i[2]
-
-    data_list = []
-
-    for i in menu_list:
-        data_list.append([i, price[i], qty[i]])
-
-    return render_template('jyj_seller.html', data_list=data_list)
+    return render_template('seller_store_add.html', data_list=data_list)
 
 
-# 판매자 정보등록 
+# 판매자 정보등록
 @blueprint.route('/seller_store_insert', methods=['POST'])
-def myajax():
-
+def seller_store_insert():
     json_data = request.get_json()
+    data = get_id()
+    usr_no = data[0]
     db = pymysql.connect(**config)
     cur = db.cursor()
-    data_festival_id = {}
-    sql = "SELECT festival_id from festival where festival_name=%s"
-    cur.execute(sql, json_data['festival_name'])
-    data_festival_id = cur.fetchall()
-    sql = '''Insert into store(festival_id,store_name,store_description ,contact_number,category,license_number,location_number,created_at)
-    values(%s,%s,%s,%s,%s,%s,%s,%s);
-    '''
 
-    json_data['created__at'] = str(datetime.today())
+    data_festival_id = []
+    sql = "SELECT festival_id from festival where festival_name=%s"
+    cur.execute(sql, [json_data['festival_name']])
+    data_festival_id = cur.fetchall()
+    json_data['last_modify'] = str(datetime.today())
+    sql = '''Insert into store(user_no,festival_id,store_name,store_description ,contact_number,category,license_number,location_number,last_modify)
+    values(%s,%s,%s,%s,%s,%s,%s,%s,%s);
+    '''
     cur.execute(sql, [
-        data_festival_id, json_data['store_name'],
+        usr_no, data_festival_id, json_data['store_name'],
         json_data['store_description'], json_data['contact_number'],
         json_data['category'], json_data['license_number'],
-        json_data['location_number'], json_data['created__at']
+        json_data['location_number'], json_data['last_modify']
     ])
+
+    sql = "update users set phone_number=%s,last_modify=%s where user_no=%s"
+    cur.execute(
+        sql, [json_data['contact_number'], json_data['last_modify'], usr_no])
 
     db.commit()
 
+    return jsonify(result="success", result2=json_data)
+
+
+#판매자 메뉴 등록
+@blueprint.route('/seller_menu_insert', methods=['POST'])
+def seller_menu_insert():
+    json_data = request.get_json()
+    print(json_data)
+    data = get_id()
+    usr_no = data[0]
+    db = pymysql.connect(**config)
+    cur = db.cursor()
+    sql = '''SELECT store_id from store where user_no=%s'''
+    cur.execute(sql, [usr_no])
+    data_store_id = cur.fetchone()
+    json_data['last_modify'] = str(datetime.today())
+    sql = '''Insert into menu(store_id,menu_name,menu_price,last_modify)
+    values(%s,%s,%s,%s);
+    '''
+    cur.execute(sql, [
+        data_store_id, json_data['menuName'], json_data['menuPrice'],
+        json_data['last_modify']
+    ])
+    db.commit()
     return jsonify(result="success", result2=json_data)
 
 
@@ -601,14 +637,15 @@ def myajax_delete():
 def myajax_state_update():
 
     json_data = request.get_json()
-    print(json_data)
-    db = pymysql.connect(**config)
 
+    db = pymysql.connect(**config)
+    print(json_data['order_id'])
     data_list_one = {}
     cur = db.cursor()
     sql = "SELECT order_state from orders"
     cur.execute(sql)
     data_list_one = cur.fetchall()
+
     for i in data_list_one:
         if (i == '주문중', ):
             sql = '''Update orders SET order_state=%s

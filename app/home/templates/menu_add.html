@@ -1,0 +1,102 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<head>
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+<div>
+  <div>
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="mb-0">메뉴 </h3>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <!-- Projects table -->
+        <table class="table align-items-center table-flush" style="border: 1px;" id="dynamicTable">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">메뉴 이름</th>
+              <th scope="col">메뉴 가격</th>
+            </tr>
+          </thead>
+          <tbody id="dynamicTbody">
+            <input type="text" placeholder="메뉴 이름" id="inName">
+            <input type="text" placeholder="메뉴 가격" id="inPrice"> 
+            <button type="button" class="btn btn-warning btn-sm" id="execute">추가</button>
+          </tbody>
+          <button type="button" class="btn btn-primary btn-sm " id="exit"> 관리 페이지 이동 </button>
+        </table>
+      </div>   
+    </div>
+  </div>
+
+</div>
+
+{% include "includes/footer.html" %}
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+<script>
+    $("[id^=exit").click(function () {
+    window.location = 'forSeller'
+
+    })
+    $("[id^=execute]").click(function () {
+        var tc = new Array();
+        var html = '';
+                    
+        var name = $("#inName").val();
+        var price = $("#inPrice").val();
+                    
+        html += '<tr>';
+        html += '<td>'+name+'</td>';
+        html += '<td>'+price+'</td>';
+        html += '</tr>';
+        console.log(name)
+        console.log(price)
+        $("#dynamicTable").append(html);
+                    
+        $("#inName").val('');
+        $("#inPrice").val('');
+
+        postdata = {
+            "menuName" : name,
+            "menuPrice" : price
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/seller_menu_insert',
+            data: JSON.stringify(postdata),
+            dataType: 'JSON',
+            contentType: "application/json",
+            success: function (data) {
+                alert("성공");
+            },
+            error: function (request, status, error) {
+                alert(error);
+                console.log(postdata);
+            }
+        })
+    })
+</script>
+{% endblock javascripts %}
