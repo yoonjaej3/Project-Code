@@ -22,7 +22,9 @@
                     {% if user == "admin" %}
                         <a id="qsLogoutBtn" class="btn btn-primary btn-lg btn-logout btn-block" href="/admin">관리자 페이지</a>
                     {% else%}
-                        <a id="qsLogoutBtn" class="btn btn-primary btn-lg btn-logout btn-block" href="/dashboard">홈페이지</a>
+                        <a id="qsLogoutBtn" class="btn btn-primary btn-lg btn-logout btn-block" href="/dashboard">
+                            올바른 권한이 아닙니다.
+                        </a>
                     {% endif %}
                 </div>
             </div>

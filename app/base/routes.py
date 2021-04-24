@@ -91,7 +91,7 @@ def route_default():
     return redirect(url_for('base_blueprint.index_init'))
 
 
-@blueprint.route('/festival_init', methods=['GET', 'POST'])
+@blueprint.route('/index', methods=['GET', 'POST'])
 def index_init():
     db = pymysql.connect(**config)
     cur = db.cursor()
@@ -108,7 +108,7 @@ def index_init():
 
     data_list = cur.fetchall()
 
-    return render_template('accounts/festival_init.html', segment='index_init', data_list=data_list)
+    return render_template('accounts/index.html', segment='index_init', data_list=data_list)
 
 
 ## Login & Registration

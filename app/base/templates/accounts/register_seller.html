@@ -19,7 +19,13 @@
                     {% else %}
                         <h2>이미 등록되었습니다.</h2>
                     {% endif %}
-                    <a id="qsLogoutBtn" class="btn btn-primary btn-lg btn-logout btn-block" href="/jaesung_festivalList">메인페이지 바로가기</a>
+                    {% if user == "seller" %}
+                        <a id="qsLogoutBtn" class="btn btn-primary btn-lg btn-logout btn-block" href="/forSeller">판매자 관리 페이지</a>
+                    {% else%}
+                        <a id="qsLogoutBtn" class="btn btn-primary btn-lg btn-logout btn-block" href="/dashboard">
+                            올바른 권한이 아닙니다.
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

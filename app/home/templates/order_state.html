@@ -34,12 +34,37 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-            <h3 class="mb-0">주문 하기</h3>
+            <h3 class="mb-0">주문 상세</h3>
           </div>
           <!-- Light table -->
           <div class="table-responsive">
             <table class="table">
-              
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col" id="ftv">가게 이름</th>
+                  <th scope="col" id="store_num">총 가격</th>
+                  <th scope="col" id="tti">위치</th>
+                  <th scope="col" id="tto">주문 상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {% for datas in data_list %}
+                  <th scope="row">
+                    {{ datas[0] }}
+                  </th>
+                  <td>
+                    {{ datas[2] }}
+                  </td>
+                  <td>
+                    {{ datas[1] }}
+                  </td>
+                  <td>
+                    {{ datas[3] }}
+                  </td>
+                  {% endfor %}
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
