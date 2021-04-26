@@ -105,5 +105,9 @@ services:
         condition: service_healthy
 
 networks:
-  my-network:
-    name: project_network
+  project_netowrk:
+    name: project_netowrk
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.1/16
