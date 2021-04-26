@@ -46,7 +46,7 @@ blueprint.config['SECRET_KEY'] = constants.SECRET_KEY
 blueprint.config['DEBUG'] = True
 
 # Kafka Producer
-producer = KafkaProducer(acks='all', client_id='last_modify', bootstrap_servers=["127.0.0.1:9092"])
+producer = KafkaProducer(acks='all', client_id='last_modify', bootstrap_servers=["172.20.0.101:9092"])
 
 
 @blueprint.errorhandler(Exception)
@@ -82,8 +82,8 @@ def requires_auth(f):
 
 
 config = {
-    'host': '127.0.0.1',
-    'port': 13306,
+    'host': '172.20.0.2',
+    'port': 3306,
     'user': 'root',
     'database': 'mydb',
     'charset': 'utf8'

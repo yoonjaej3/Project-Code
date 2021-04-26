@@ -15,11 +15,11 @@ import json
 
 
 # Kafka Producer
-producer = KafkaProducer(acks='all', client_id='last_modify', bootstrap_servers=["127.0.0.1:9092"])
+producer = KafkaProducer(acks='all', client_id='last_modify', bootstrap_servers=["172.20.0.101:9092"])
 
 config = {
-    'host': '127.0.0.1',
-    'port': 13306,
+    'host': '172.20.0.2',
+    'port': 3306,
     'user': 'root',
     'database': 'mydb',
     'charset': 'utf8'
