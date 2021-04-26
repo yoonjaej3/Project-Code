@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 config = {
-    'host': '172.20.0.3',
+    'host': '172.20.0.2',
     'port': 3306,
     'user': 'root',
     'database': 'mydb',
@@ -566,9 +566,10 @@ def seller_store_insert():
     cur.execute(sql, [json_data['festival_name']])
     data_festival_id = cur.fetchall()
     json_data['last_modify'] = str(datetime.today())
-    sql = '''Insert into store(user_no,festival_id,store_name,store_description ,contact_number,category,license_number,location_number,last_modify)
-    values(%s,%s,%s,%s,%s,%s,%s,%s,%s);
-    '''
+    sql = '''Insert into store(user_no,festival_id,store_name,store_description ,contact_number,
+                                category,license_number,location_number,last_modify)
+                values(%s,%s,%s,%s,%s,%s,%s,%s,%s);'''
+                
     cur.execute(sql, [
         usr_no, data_festival_id, json_data['store_name'],
         json_data['store_description'], json_data['contact_number'],
