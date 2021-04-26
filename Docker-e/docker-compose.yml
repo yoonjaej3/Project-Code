@@ -1,0 +1,80 @@
+# version: "3.9"
+# services:
+#   project-api:
+#     container_name: mysql_project
+#     image: mysql:5.7
+#     volumes: 
+#       - ./mysql-data:/var/lib/mysql
+#     ports:
+#       - 13306:3306
+#     command: 
+#       - --character-set-server=utf8mb4
+#       - --collation-server=utf8mb4_unicode_ci      
+#     environment: 
+#       MYSQL_DATABASE: "mydb"
+#       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+
+
+
+# version: "3.9"
+# services:
+#   project-api:
+#     container_name: mysql_project
+#     image: mysql:5.7
+#     volumes: 
+#       - ./mysql-data:/var/lib/mysql
+#     ports:
+#       - 13306:3306
+#     command: 
+#       - --character-set-server=utf8mb4
+#       - --collation-server=utf8mb4_unicode_ci      
+#     environment: 
+#       MYSQL_DATABASE: "mydb"
+#       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+#   api-msa:
+#     container_name: api_service
+#     image: janine0127/project_api:latest
+#     ports:
+#       - 16000:6000
+# networks: 
+#   default:
+#     external: 
+#       name: project_network
+
+
+
+
+version: "3.9"
+services:
+  project-api:
+    container_name: mysql_project
+    image: mysql:5.7
+    volumes: 
+      - ./mysql-data:/var/lib/mysql
+    ports:
+      - 13306:3306
+    command: 
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci      
+    environment: 
+      MYSQL_DATABASE: "mydb"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+    networks:
+      - project_network
+  api-msa:
+    container_name: api_service
+    image: janine0127/project_api:latest
+    ports:
+      - 16000:6000
+    networks: 
+      - project_network
+
+networks:
+  project_network:
+    name: project_network
+    driver: bridge
+    ipam:
+      config: 
+        - subnet: 172.20.0.1/16
+
+    

@@ -1,0 +1,13 @@
+FROM python:3.7.9-stretch
+
+WORKDIR /msa
+
+COPY ./api.py ./app.py
+
+RUN pip install flask
+RUN pip install flask_restful
+RUN pip install pymysql
+
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "6000"]
+
+# CMD ["flask", "run", "—host", "0.0.0.0", "—port", "6000"]
