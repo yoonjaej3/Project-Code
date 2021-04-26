@@ -12,8 +12,8 @@ app = Flask(__name__)
 api = flask_restful.Api(app)
 
 config = {
-    'host': '172.20.0.1',
-    'port': 13306,
+    'host': '172.20.0.5',
+    'port': 3306,
     'user': 'root',
     'database': 'mydb'
 }
@@ -195,4 +195,4 @@ api.add_resource(Festival, '/festival-ms/festival')
 api.add_resource(Category, '/category-ms/category')
 
 if __name__ == '__main__':
-    app.run(port=6000)
+    app.run(port=7000)

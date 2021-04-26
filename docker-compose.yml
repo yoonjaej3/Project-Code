@@ -5,11 +5,10 @@ services:
     ports:
       - "2181:2181"
     networks:
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.100
     healthcheck:
       test: "exit 0"
-  ---
   kafka:
     image: wurstmeister/kafka
     ports:
@@ -24,15 +23,14 @@ services:
       zookeeper:
         condition: service_started
     networks:
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.101
     healthcheck:
       test: "exit 0"
-  ---
   mysql:
     image: mysql:5.7
     ports:
-      - 13306:3306
+      - 23306:3306
     restart: always
     container_name: mysql_server
     environment:
@@ -42,15 +40,14 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql
     networks:
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.2
     healthcheck:
       test: "exit 0"
-  ---
   mysql2:
     image: mysql:5.7
     ports:
-      - 23306:3306
+      - 33306:3306
     restart: always
     container_name: mysql_api
     environment:
@@ -60,15 +57,14 @@ services:
     volumes:
       - ./mysql-data2:/var/lib/mysql
     networks:
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.3
     healthcheck:
       test: "exit 0"
-  ---
   kafka_consumer:
-    image: jhg7856/kafka_consumer:latest
+    image: jhg7856/kafka_consumer
     networks:
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.4
     depends_on:
       zookeeper:
@@ -77,36 +73,33 @@ services:
         condition: service_healthy
       mysql2:
         condition: service_healthy
-  ---
   api-msa:
     container_name: api_service
-    image: project_api:latest
+    image: jhg7856/project_api
     ports:
-      - 16000:6000
+      - 16000:7000
     networks: 
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.5
     depends_on:
       mysql2:
         condition: service_healthy
-  ---
   server-app:
     restart: always
     env_file: .env
     container_name: web_server
-    image: project
+    image: jhg7856/project
     ports:
       - "5005:5005"
     networks:
-      my-network:
+      project_network:
         ipv4_address: 172.20.0.6
     depends_on:
       mysql:
         condition: service_healthy
-
 networks:
-  project_netowrk:
-    name: project_netowrk
+  project_network:
+    name: project_network
     driver: bridge
     ipam:
       config:
