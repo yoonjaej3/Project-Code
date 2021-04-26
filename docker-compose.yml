@@ -7,6 +7,8 @@ services:
     image: project
     ports:
       - "5005:5005"
+    depends_on:
+      - mysql-app
     networks:
       - project_netowrk
 
