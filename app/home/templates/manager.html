@@ -30,7 +30,7 @@
               <th scope="col">기간</th>
               <th scope="col">장소</th>
               <th scope="col">URL</th>
-              <th scope="col">정보 조회 바로가기</th>
+              <th scope="col">사이트 바로가기</th>
               <th scope="col">삭제</th>
               <th><button type="button" class="btn btn-primary btn-sm" id="add"> 추가하기 </button></th>
             </tr>
@@ -52,7 +52,7 @@
                 {{ datas[6] }}
               </td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm" id="go">바로가기</button>
+                <button type="button" class="btn btn-primary btn-sm" onClick="window.open='{{ datas[6] }}'" id="go">바로가기</button>
               </td>
               <td>
                 <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
@@ -135,7 +135,6 @@
     window.location = 'festival_add'
 
   })
-
   // 페스티벌 정보 삭제
   $("[id^=execute]").click(function () {
     var cell = $(this).closest('td')
