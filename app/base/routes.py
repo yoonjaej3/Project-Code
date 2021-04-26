@@ -78,8 +78,8 @@ def requires_auth(f):
 
 
 config = {
-    'host': '127.0.0.1',
-    'port': 13306,
+    'host': '172.20.0.2',
+    'port': 3306,
     'user': 'root',
     'database': 'mydb',
     'charset': 'utf8'
@@ -153,11 +153,12 @@ def dashboard():
 def admin_register():   
     db = pymysql.connect(**config)
     cur = db.cursor()
-    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
-    check = cur.fetchone()
+    sql_s = 'SELECT * FROM users WHERE email = %s'
+    data = cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+
     admin = 'admin'
 
-    if not check:
+    if int(data) == 0:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [admin, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
  
@@ -166,6 +167,9 @@ def admin_register():
     else:
         is_admin = False
 
+    cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+    
+    check = cur.fetchone()
     user = check[1]
 
     return render_template('accounts/register_admin.html', user=user, is_admin=is_admin, userinfo=session[constants.PROFILE_KEY])
@@ -177,11 +181,12 @@ def admin_register():
 def manager_register():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
-    check = cur.fetchone()
+    sql_s = 'SELECT * FROM users WHERE email = %s'
+    data = cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+
     manager = 'manager'
 
-    if not check:
+    if int(data) == 0:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [manager, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()        
@@ -189,7 +194,10 @@ def manager_register():
         is_org = True
     else:
         is_org = False
-
+    
+    cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+    
+    check = cur.fetchone()
     user = check[1]
 
     return render_template('accounts/register_org.html', user=user, is_org=is_org, userinfo=session[constants.PROFILE_KEY])
@@ -201,19 +209,23 @@ def manager_register():
 def seller_register():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
-    check = cur.fetchone()
+    sql_s = 'SELECT * FROM users WHERE email = %s'
+    data = cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+
     seller = 'seller'
 
-    if not check:
+    if int(data) == 0:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [seller, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
-        
+
         is_seller = True
     else:
         is_seller = False
+
+    cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
     
+    check = cur.fetchone()
     user = check[1]
 
     return render_template('accounts/register_seller.html', user=user, is_seller=is_seller, userinfo=session[constants.PROFILE_KEY])
@@ -225,11 +237,12 @@ def seller_register():
 def buyer_register():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    cur.execute('SELECT * FROM users WHERE email = %s', [session[constants.JWT_PAYLOAD]['email']])
-    check = cur.fetchone()
+    sql_s = 'SELECT * FROM users WHERE email = %s'
+    data = cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+
     user = 'customer'
 
-    if not check:
+    if int(data) == 0:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [user, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
@@ -238,6 +251,9 @@ def buyer_register():
     else:
         is_buyer = False
     
+    cur.execute(sql_s, [session[constants.JWT_PAYLOAD]['email']])
+    
+    check = cur.fetchone()
     user = check[1]
 
     return render_template('accounts/register_customer.html', user=user, is_buyer=is_buyer, userinfo=session[constants.PROFILE_KEY])

@@ -30,13 +30,15 @@
               <th scope="col">기간</th>
               <th scope="col">장소</th>
               <th scope="col">URL</th>
-              <th scope="col">정보 조회 바로가기</th>
+              <th scope="col">사이트 바로가기</th>
+              <th scope="col">삭제</th>
               <th><button type="button" class="btn btn-primary btn-sm" id="add"> 추가하기 </button></th>
             </tr>
           </thead>
           <tbody>
             {% for datas in data_list %}
             <tr>
+              <td style="display:none">{{ datas[7] }}</td>
               <td>
                 {{ datas[3] }}
               </td>
@@ -50,7 +52,7 @@
                 {{ datas[6] }}
               </td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm" id="go">바로가기</button>
+                <button type="button" class="btn btn-primary btn-sm" onClick="window.open='{{ datas[6] }}'" id="go">바로가기</button>
               </td>
               <td>
                 <button type="button" class="btn btn-warning btn-sm" id="execute">삭제</button>
@@ -133,12 +135,32 @@
     window.location = 'festival_add'
 
   })
-
   // 페스티벌 정보 삭제
   $("[id^=execute]").click(function () {
-    
+    var cell = $(this).closest('td')
+    var cellIndex = cell[0].parentNode.cells[0]
+    var festival_id = cellIndex.firstChild.data
+    console.log(festival_id)
+    var postdata = {
+      'festival_id': festival_id
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/manager_festival_delete',
+      data: JSON.stringify(postdata),
+      dataType: 'JSON',
+      contentType: "application/json",
+      success: function (data) {
+        alert("성공");
+        window.location = 'manager'
+      },
+      error: function (request, status, error) {
+        alert(error);
+        console.log(postdata);
+      }
+    })
   })
-  
+
   // 가게 정보 삭제
   $("[id^=s_execute]").click(function () {
 
