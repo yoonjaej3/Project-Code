@@ -26,6 +26,7 @@ from os import environ as env
 from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv, find_dotenv
 from six.moves.urllib.parse import urlencode
+from kafka import KafkaProducer
 
 from app.base import constants
 
@@ -43,6 +44,9 @@ AUTH0_AUDIENCE = env.get(constants.AUTH0_AUDIENCE)
 blueprint.config={}
 blueprint.config['SECRET_KEY'] = constants.SECRET_KEY
 blueprint.config['DEBUG'] = True
+
+# Kafka Producer
+producer = KafkaProducer(acks='all', client_id='last_modify', bootstrap_servers=["127.0.0.1:9092"])
 
 
 @blueprint.errorhandler(Exception)
@@ -78,12 +82,24 @@ def requires_auth(f):
 
 
 config = {
-    'host': '172.20.0.3',
-    'port': 3306,
+    'host': '127.0.0.1',
+    'port': 13306,
     'user': 'root',
     'database': 'mydb',
     'charset': 'utf8'
 }
+
+def get_id():
+    conn = pymysql.connect(**config)
+    cur = conn.cursor()
+
+    sql = "SELECT user_no FROM users WHERE email = %s"
+
+    cur.execute(sql, [session[constants.JWT_PAYLOAD]['email']])
+
+    user_no = cur.fetchone()
+
+    return user_no
 
 
 @blueprint.route('/')
@@ -95,13 +111,6 @@ def route_default():
 def index_init():
     db = pymysql.connect(**config)
     cur = db.cursor()
-    json_data = request.get_json()
-    if json_data:
-        sql = '''INSERT INTO festival(org_id, festival_name, period, location, url)
-                VALUES(%s, %s, %s, %s, %s)'''
-        cur.execute(sql, [json_data['org_id'], json_data['festival_name'],
-                          json_data['period'], json_data['location'], json_data['url']])
-        db.commit()
 
     sql = "SELECT * from festival"
     cur.execute(sql)
@@ -163,6 +172,21 @@ def admin_register():
         cur.execute(sql, [admin, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
  
         db.commit()
+        
+        # 현재 접속한 user_no
+        user_no = get_id()
+        # Kafka에 전송할 JSON data
+        d = {
+            'user_no' : user_no[0],
+            'user_category' : admin,
+            'email' : session[constants.JWT_PAYLOAD]['email'],
+            'user_name' : session[constants.JWT_PAYLOAD]['name'],
+            'phone_number' : None
+        }
+
+        producer.send('my_topic_users', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+        producer.flush()
+
         is_admin = True
     else:
         is_admin = False
@@ -189,8 +213,22 @@ def manager_register():
     if int(data) == 0:
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [manager, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
-        db.commit()        
+        db.commit()
+
+        # 현재 접속한 user_no
+        user_no = get_id()
+        # Kafka에 전송할 JSON data
+        d = {
+            'user_no' : user_no[0],
+            'user_category' : manager,
+            'email' : session[constants.JWT_PAYLOAD]['email'],
+            'user_name' : session[constants.JWT_PAYLOAD]['name'],
+            'phone_number' : None
+        }  
         
+        producer.send('my_topic_users', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+        producer.flush()
+
         is_org = True
     else:
         is_org = False
@@ -219,6 +257,20 @@ def seller_register():
         cur.execute(sql, [seller, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
 
+        # 현재 접속한 user_no
+        user_no = get_id()
+        # Kafka에 전송할 JSON data
+        d = {
+            'user_no' : user_no[0],
+            'user_category' : seller,
+            'email' : session[constants.JWT_PAYLOAD]['email'],
+            'user_name' : session[constants.JWT_PAYLOAD]['name'],
+            'phone_number' : None
+        }  
+        
+        producer.send('my_topic_users', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+        producer.flush()
+
         is_seller = True
     else:
         is_seller = False
@@ -246,6 +298,20 @@ def buyer_register():
         sql = '''INSERT INTO users (user_category, email, user_name) VALUES (%s, %s, %s)'''
         cur.execute(sql, [user, session[constants.JWT_PAYLOAD]['email'], session[constants.JWT_PAYLOAD]['name']])
         db.commit()
+
+        # 현재 접속한 user_no
+        user_no = get_id()
+        # Kafka에 전송할 JSON data
+        d = {
+            'user_no' : user_no[0],
+            'user_category' : user,
+            'email' : session[constants.JWT_PAYLOAD]['email'],
+            'user_name' : session[constants.JWT_PAYLOAD]['name'],
+            'phone_number' : None
+        }  
+        
+        producer.send('my_topic_users', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+        producer.flush()
       
         is_buyer = True
     else:
