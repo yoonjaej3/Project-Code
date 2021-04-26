@@ -8,10 +8,14 @@ from app.base.routes import requires_auth, session
 from app.home import blueprint
 from flask import render_template, request, jsonify, redirect, url_for
 from jinja2 import TemplateNotFound
-# import flask_restful
+from kafka import KafkaProducer
 import pymysql
 from datetime import datetime
+import json
 
+
+# Kafka Producer
+producer = KafkaProducer(acks='all', client_id='last_modify', bootstrap_servers=["172.20.0.101:9092"])
 
 config = {
     'host': '172.20.0.2',
@@ -22,6 +26,7 @@ config = {
 }
 
 
+# 현재 접속한 user_no와 order_id를 추출하는 메서드
 def get_id():
     conn = pymysql.connect(**config)
 
@@ -49,7 +54,7 @@ def get_id():
 ###############################################
 ###############     메인     ##################
 ###############################################
-
+# 메인 화면
 @blueprint.route('/index_login')
 def index():
     # 현재 로그인한 user_no
@@ -178,6 +183,7 @@ def store_list(f_id):
     cur.execute(sql, [f_id])
 
     data_list = cur.fetchall()
+
     return render_template('storeList.html', segment='storelist', data_list=data_list)
 
 
@@ -267,14 +273,34 @@ def order_post():
 
         conn.commit()
 
+        # d = {
+        #     'order_id' : data[2],
+        #     'requests' : json_data['request_text'],
+        #     'phone_number' : 
+        # }
+
+        # orders
+        # producer.send('my_topic_orders', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+        # producer.flush()
+
         with conn.cursor() as cursor:
             sql = "UPDATE users SET phone_number=%s WHERE user_no=%s"
             cursor.execute(sql, [json_data['phone_number'], data[0]])
 
         conn.commit()
 
+        d = {
+        'user_no' : data[0],
+        'phone_number' : json_data['phone_number']
+        }
+
+        # users
+        producer.send('my_topic_users', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+        producer.flush()
+
     finally:
         conn.close()
+        # Kafka에 전송할 JSON data
 
     return jsonify(result="success", result2=json_data)
     
@@ -286,7 +312,7 @@ def order_insert():
     data = get_id()
     # DB algo
     db = pymysql.connect(**config)
-    cur = db.cursor()
+    cur_insert = db.cursor()
 
     sum = 0
     cnt = 0
@@ -300,8 +326,8 @@ def order_insert():
             for i in value:
                 cnt += int(i)
 
-            cur.execute("select menu_price from menu where menu_id=%s", key)
-            a = cur.fetchall()
+            cur_insert.execute("select menu_price from menu where menu_id=%s", key)
+            a = cur_insert.fetchall()
 
             # 전체 가격 합하기
             for i in a:
@@ -309,13 +335,32 @@ def order_insert():
                     sum += int(j) * int(value)
 
     sql = "insert into orders (user_no, store_id, total_qty, total_price) values(%s, %s, %s, %s)"
-    cur.execute(sql, [data[0], main_key, cnt, sum])
+    cur_insert.execute(sql, [data[0], main_key, cnt, sum])
     db.commit()
 
+    # Kafka Producer SELECT
+    # cur = db.cursor()
+    # sql_order = "SELECT max(order_id) FROM orders WHERE user_no=%s"
+    # cur.execute(sql_order, data[0])
+    # order_id = cur.fetchone()
+
+    # d = {
+    #     'order_id' : order_id[0],
+    #     'user_no' : data[0],
+    #     'store_id' : main_key,
+    #     'total_qty' : cnt,
+    #     'total_price' : sum,
+    #     'order_state' : '주문중',
+    #     'requests' : null
+    # }
+     
+    # producer.send('my_topic_orders', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+    # producer.flush()
+    
     db.close()
 
-    newID = cur.lastrowid
-    # print(newID, type(newID))
+    newID = cur_insert.lastrowid
+    print("order_newID :", newID)
     orderdetail_insert(main_key, req_data, newID)
 
     return render_template('storeMenuList.html', segment='cartlist')
@@ -340,9 +385,9 @@ def orderdetail_insert(store_id, data, newID):
             for i in a:
                 for j in i:
                     price = int(j)
-                    sql = "insert into order_detail (order_id, menu_id, food_price, food_qty) values(%s, %s, %s, %s)"
-                    cur.execute(sql,
-                                (int(newID), int(key), int(price), int(cnt)))
+                    sql = "INSERT INTO order_detail (order_id, menu_id, food_price, food_qty) VALUES(%s, %s, %s, %s)"
+           
+                    cur.execute(sql, [int(newID), int(key), int(price), int(cnt)])
 
     db.commit()
     db.close()
@@ -388,21 +433,35 @@ def manager_festival():
 def manager_festival_insert():
     json_data = request.get_json()
     data = get_id()
-    usr_no = data[0]
+    user_no = data[0]
     db = pymysql.connect(**config)
     cur = db.cursor()
-    sql = '''Insert into festival(user_no,company_name,festival_name,period,location,url,last_modify)
-    values(%s,%s,%s,%s,%s,%s,%s);
-    '''
+    sql = '''Insert into festival(user_no,company_name,festival_name,period,location,url)
+    values(%s,%s,%s,%s,%s,%s);'''
 
-    json_data['last_modify'] = str(datetime.today())
     cur.execute(sql, [
-        usr_no, json_data['company_name'], json_data['festival_name'],
-        json_data['period'], json_data['location'], json_data['url'],
-        json_data['last_modify']
+        user_no, json_data['company_name'], json_data['festival_name'],
+        json_data['period'], json_data['location'], json_data['url']
     ])
 
     db.commit()
+
+    sql = '''SELECT max(festival_id) FROM festival WHERE user_no=%s'''
+    cur.execute(sql, [user_no])
+    festival_id = cur.fetchone()
+
+    d = {
+        'festival_id' : festival_id[0],
+        'user_no' : user_no,
+        'company_name' : json_data['company_name'],
+        'festival_name' : json_data['festival_name'],
+        'period' : json_data['period'],
+        'location' : json_data['location'],
+        'url' : json_data['url']
+    }
+
+    producer.send('my_topic_festival', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+    producer.flush()
 
     return jsonify(result="success", result2=json_data)
 
@@ -561,27 +620,55 @@ def seller_store_insert():
     db = pymysql.connect(**config)
     cur = db.cursor()
 
+    festival_id = []
+    sql = "SELECT festival_id from festival where festival_name=%s"
+    cur.execute(sql, [json_data['festival_name']])
+    festival_id = cur.fetchone()
+    sql = '''Insert into store(user_no,festival_id,store_name,store_description ,contact_number,
+                                category,license_number,location_number)
+                values(%s,%s,%s,%s,%s,%s,%s,%s);'''
+
+    cur.execute(sql, [
+        usr_no, festival_id[0], json_data['store_name'],
+        json_data['store_description'], json_data['contact_number'],
+        json_data['category'], json_data['license_number'], json_data['location_number']
+    ])
+
+    sql = "update users set phone_number=%s where user_no=%s"
+    cur.execute(
+        sql, [json_data['contact_number'], usr_no])
+
+    db.commit()
+
+    # Kafka에 전송할 JSON data
+    d = {
+        'user_no' : usr_no,
+        'phone_number' : json_data['contact_number']
+    }
+
+    # users
+    producer.send('my_topic_users', value=json.dumps(d, ensure_ascii=False, default=str).encode())
+    producer.flush()
+
+    # Kafka festival_id
     data_festival_id = []
     sql = "SELECT festival_id from festival where festival_name=%s"
     cur.execute(sql, [json_data['festival_name']])
-    data_festival_id = cur.fetchall()
-    json_data['last_modify'] = str(datetime.today())
-    sql = '''Insert into store(user_no,festival_id,store_name,store_description ,contact_number,
-                                category,license_number,location_number,last_modify)
-                values(%s,%s,%s,%s,%s,%s,%s,%s,%s);'''
+    data_festival_id = cur.fetchone()
 
-    cur.execute(sql, [
-        usr_no, data_festival_id, json_data['store_name'],
-        json_data['store_description'], json_data['contact_number'],
-        json_data['category'], json_data['license_number'],
-        json_data['location_number'], json_data['last_modify']
-    ])
+    d = {
+        'user_no': usr_no,
+        'festival_id': data_festival_id[0],
+        'store_name': json_data['store_name'],
+        'store_description': json_data['store_description'],
+        'contact_number': json_data['contact_number'],
+        'category': json_data['category'],
+        'license_number': json_data['license_number'],
+        'location_number': json_data['location_number']
+    }
 
-    sql = "update users set phone_number=%s,last_modify=%s where user_no=%s"
-    cur.execute(
-        sql, [json_data['contact_number'], json_data['last_modify'], usr_no])
-
-    db.commit()
+    producer.send('my_topic_store', json.dumps(d, ensure_ascii=False, default=str).encode())
+    producer.flush()
 
     return jsonify(result="success", result2=json_data)
 
@@ -590,23 +677,40 @@ def seller_store_insert():
 @blueprint.route('/seller_menu_insert', methods=['POST'])
 def seller_menu_insert():
     json_data = request.get_json()
-    print(json_data)
     data = get_id()
     usr_no = data[0]
+
     db = pymysql.connect(**config)
     cur = db.cursor()
+
     sql = '''SELECT store_id from store where user_no=%s'''
+
     cur.execute(sql, [usr_no])
     data_store_id = cur.fetchone()
-    json_data['last_modify'] = str(datetime.today())
-    sql = '''Insert into menu(store_id,menu_name,menu_price,last_modify)
-    values(%s,%s,%s,%s);
-    '''
-    cur.execute(sql, [
-        data_store_id, json_data['menuName'], json_data['menuPrice'],
-        json_data['last_modify']
-    ])
+
+    sql = '''Insert into menu(store_id,menu_name,menu_price)
+            values(%s,%s,%s);'''
+
+    cur.execute(sql, [data_store_id[0], json_data['menuName'], 
+                    json_data['menuPrice']])
     db.commit()
+
+    sql = "SELECT menu_id FROM menu WHERE store_id=%s"
+
+    cur.execute(sql, [data_store_id[0]])
+    menu_id = cur.fetchone()
+
+    d = {
+        'menu_id' : menu_id,
+        'store_id': data_store_id[0],
+        'menu_name': json_data['menuName'],
+        'menu_price': json_data['menuPrice']
+    }
+    producer.send('my_topic_menu', json.dumps(d, ensure_ascii=False, default=str).encode())
+    producer.flush()
+    
+    db.close()
+
     return jsonify(result="success", result2=json_data)
 
 
@@ -636,13 +740,12 @@ def myajax_delete():
 #
 @blueprint.route('/order_state_update', methods=['POST'])
 def myajax_state_update():
-
     json_data = request.get_json()
-
     db = pymysql.connect(**config)
-    print(json_data['order_id'])
+
     data_list_one = {}
     cur = db.cursor()
+
     sql = "SELECT order_state from orders"
     cur.execute(sql)
     data_list_one = cur.fetchall()
@@ -650,10 +753,20 @@ def myajax_state_update():
     for i in data_list_one:
         if (i == '주문중', ):
             sql = '''Update orders SET order_state=%s
-            where order_id=%s
-            '''
+            where order_id=%s'''
+
             cur.execute(sql, ['주문완료', json_data['order_id']])
+
             db.commit()
+
+            # d = {
+            #     'order_id': json_data['order_id'],
+            #     'order_state': '주문완료',
+            #     'requests' : null
+            # }
+
+            # producer.send('my_topic_orders', json.dumps(d, ensure_ascii=False, default=str).encode())
+            # producer.flush()
 
     return jsonify(result="success", result2=json_data)
 
