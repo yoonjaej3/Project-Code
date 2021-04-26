@@ -78,7 +78,7 @@ def requires_auth(f):
 
 
 config = {
-    'host': '172.20.0.3',
+    'host': '172.20.0.2',
     'port': 3306,
     'user': 'root',
     'database': 'mydb',

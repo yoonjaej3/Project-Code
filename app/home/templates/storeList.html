@@ -9,7 +9,7 @@
       <div class="header-body">
         <div class="row align-items-center py-4">
           <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">Tables</h6>
+            <h6 class="h2 text-white d-inline-block mb-0">가게 선택하기 페이지</h6>
             <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
                 <li class="breadcrumb-item"><a href="/index_login"><i class="fas fa-home"></i></a></li>
@@ -33,12 +33,10 @@
           <!-- Light table -->
           <div class="table-responsive">
             <table class="table">
-              <th>
-                <tr>
-                  <td>가게 이름</td>
-                  <td>가게 설명</td>
-                </tr>
-              </th>
+              <tr>
+                <th>가게 이름</th>
+                <th>가게 설명</th>
+              </tr>
               {% for datas in data_list %}
                 <th scope="row">
                   <div class="media align-items-center">
@@ -48,9 +46,6 @@
                       </a>
                     </div>
                   </div>
-                  <td style="display:none;">
-                    {{ datas[1] }} <!--음식점 갯수-->
-                  </td>
                   <td>
                     {{ datas[2] }} <!--음식점 갯수-->
                   </td>

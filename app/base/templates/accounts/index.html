@@ -33,7 +33,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">Festivals</h3>
+                  <h3 class="mb-0">페스티벌 선택하기</h3>
                 </div>
               </div>
             </div>
@@ -42,12 +42,12 @@
               <table class="table">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Company name</th>
-                    <th scope="col">Festival name</th>
-                    <th scope="col">period</th>
-                    <th scope="col">Location</th>
-                    <th scope="col">Homepage</th>
-                    <th scope="col">Food Lists</th>
+                    <th scope="col">주최기관</th>
+                    <th scope="col">페스티벌명</th>
+                    <th scope="col">기간</th>
+                    <th scope="col">장소</th>
+                    <th scope="col">홈페이지</th>
+                    <th scope="col">가게 보러가기</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -58,7 +58,7 @@
                     <td>{{ datas[4] }}</td>
                     <td>{{ datas[5] }}</td>
                     <td><a href="{{ datas[6] }}">{{ datas[6] }}</td>
-                    <td><a href="/storeMenuList" class="btn btn-sm btn-primary">See Foods</a></td>
+                    <td><a href="/login_user" class="btn btn-sm btn-primary">음식주문</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
