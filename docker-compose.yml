@@ -26,3 +26,6 @@ services:
 networks:
   project_netowrk:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.3/16
