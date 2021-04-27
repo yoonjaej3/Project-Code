@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 config = {
-    'host': '172.20.0.2',
+    'host': '172.20.0.3',
     'port': 3306,
     'user': 'root',
     'database': 'mydb',
