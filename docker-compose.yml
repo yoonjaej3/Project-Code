@@ -94,7 +94,7 @@ services:
     restart: always
     env_file: .env
     container_name: web_server
-    image: project
+    image: jhg7856/project
     ports:
       - "5005:5005"
     networks:
