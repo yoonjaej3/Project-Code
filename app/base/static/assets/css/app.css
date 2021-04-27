@@ -41,11 +41,11 @@ body {
     outline: 0;
   }
   .btn {
-    font-size: 140%;
+    font-size: 120%;
     text-transform: uppercase;
     letter-spacing: 1px;
     border: 0;
-    background-color: #16214D;
+    background-color: #47008a;
     color: white;
   }
   .btn:hover {
