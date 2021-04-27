@@ -75,31 +75,22 @@
         <table class="table align-items-center table-flush">
           <thead class="thead-light">
             <tr>
-              <h5 class="mb-0">페스티벌 리스트</h5>
-              <th scope="col">페스티벌 명</th>
-              <th scope="col">기간</th>
-              <th scope="col">장소</th>
-              <th scope="col">URL</th>
-              <th scope="col">정보 조회 바로가기</th>
+              <th scope="col" id="ftv">페스티벌명</th>
+              <th scope="col" id="store_num">참여가게 수</th>
+              <th scope="col" id="tto">총 주문 건수</th>
             </tr>
           </thead>
           <tbody>
-            {% for datas in data_list %}
+            {% for datas in festival_data %}
             <tr>
+              <th scope="row">
+                {{ datas[1] }}
+              </th>
+              <td>
+                {{ datas[2] }}
+              </td>
               <td>
                 {{ datas[3] }}
-              </td>
-              <td>
-                {{ datas[4] }}
-              </td>
-              <td>
-                {{ datas[5] }}
-              </td>
-              <td>
-                {{ datas[6] }}
-              </td>
-              <td>
-                <button type="button" class="btn btn-primary btn-sm" id="go">바로가기</button>
               </td>
             </tr>
             {% endfor %}
@@ -124,9 +115,8 @@
 <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
 
 <script>
-
+  // 주최자 삭제 버튼
   $("[id^=execute]").click(function () {
-
     var cell = $(this).closest('td')
     console.log(cell[0].parentNode)
     var cellIndex = cell[0].parentNode.cells[0]
@@ -152,14 +142,12 @@
       }
     })
   })
-
+  // url 이동
   $("[id^=go").click(function () {
-
     var cell = $(this).closest('td')
     var cellIndex = cell[0].parentNode.cells[3]
     var url = cellIndex.firstChild.data.split(" ").join('');
     window.open(url);
-
   })
 </script>
 {% endblock javascripts %}
